@@ -1,0 +1,3800 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+  <title>JANUS Command Center</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="application-name" content="JANUS">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JANUS">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#05070d">
+  <meta name="description" content="JANUS Command Center - Trading Dashboard">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root{
+      --bg:#05070d;
+      --bg2:#0b1018;
+      --card:#0f1724;
+      --card2:#121b2a;
+      --text:#e6edf3;
+      --muted:#8a9bb3;
+      --border:rgba(255,255,255,0.08);
+      --accent:#38bdf8;
+      --janus:#FF6835;
+      --janus-dark:#E55A2B;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --warn:#eab308;
+    }
+    [data-theme="light"]{
+      --bg:#f5f7fb;
+      --bg2:#ffffff;
+      --card:#ffffff;
+      --card2:#eef1f7;
+      --text:#020617;
+      --muted:#64748b;
+      --border:rgba(15,23,42,0.12);
+      --accent:#2563eb;
+      --good:#16a34a;
+      --bad:#dc2626;
+      --warn:#ca8a04;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,var(--bg2),var(--bg));
+      color:var(--text);
+      min-height:100vh;
+    }
+    header{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter:blur(12px);
+      background:rgba(3,7,18,0.88);
+      border-bottom:1px solid var(--border);
+    }
+    [data-theme="light"] header{background:rgba(248,250,252,0.9);}
+    .topbar{
+      max-width:1200px;margin:0 auto;padding:0.7rem 1rem;
+      display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;
+    }
+    .brand{display:flex;align-items:center;gap:0.6rem;font-weight:800;letter-spacing:0.04em;}
+    .brand-dot{
+      width:10px;height:10px;border-radius:999px;background:var(--accent);
+      box-shadow:0 0 12px var(--accent);
+    }
+    .brand span{font-size:0.8rem;color:var(--muted);font-weight:600;}
+    .pill{
+      display:inline-flex;align-items:center;gap:0.35rem;
+      padding:0.3rem 0.6rem;border-radius:999px;
+      border:1px solid var(--border);background:var(--card2);
+      font-size:0.78rem;color:var(--muted);font-weight:600;
+    }
+    .pill.good{color:#bbf7d0;background:rgba(34,197,94,0.13);border-color:rgba(34,197,94,0.45);}
+    .pill.bad{color:#fecaca;background:rgba(248,113,113,0.15);border-color:rgba(239,68,68,0.55);}
+    .pill.warn{color:#fef3c7;background:rgba(234,179,8,0.16);border-color:rgba(234,179,8,0.5);}
+    [data-theme="light"] .pill.good{
+      color:#166534;
+      background:#bbf7d0;
+      border-color:#22c55e;
+    }
+    [data-theme="light"] .pill.bad{
+      color:#991b1b;
+      background:#fecaca;
+      border-color:#dc2626;
+    }
+    [data-theme="light"] .pill.warn{
+      color:#92400e;
+      background:#fef3c7;
+      border-color:#ca8a04;
+    }
+    .actions{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;}
+    nav{
+      max-width:1200px;margin:0 auto;padding:0 1rem 0.5rem;
+      display:flex;gap:0.4rem;flex-wrap:wrap;
+    }
+    .tab-btn{
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--muted);
+      padding:0.4rem 0.75rem;
+      border-radius:0.85rem;
+      font-size:0.85rem;
+      font-weight:700;
+      display:inline-flex;align-items:center;gap:0.4rem;
+      cursor:pointer;
+      transition:all 0.16s ease;
+    }
+    .tab-btn:hover{border-color:rgba(148,163,184,0.7);color:var(--text);transform:translateY(-1px);}
+    .tab-btn.active{
+      background:linear-gradient(135deg,var(--card),#020617);
+      border-color:rgba(56,189,248,0.8);
+      color:var(--text);
+      box-shadow:0 0 0 1px rgba(56,189,248,0.25);
+    }
+    [data-theme="light"] .tab-btn{
+      background:#ffffff;
+      border-color:rgba(255,104,53,0.4);
+      color:var(--janus-dark);
+    }
+    [data-theme="light"] .tab-btn:hover{
+      background:var(--janus);
+      color:#ffffff;
+      border-color:var(--janus-dark);
+      transform:translateY(-1px);
+    }
+    [data-theme="light"] .tab-btn.active{
+      background:var(--janus);
+      color:#ffffff;
+      border-color:var(--janus-dark);
+      box-shadow:0 0 0 1px rgba(255,104,53,0.35);
+    }
+    main{max-width:1200px;margin:0 auto;padding:1rem;}
+    .grid{display:grid;gap:1rem;}
+    @media(min-width:900px){
+      .grid.cols-3{grid-template-columns:1.2fr 0.9fr 1fr;}
+      .grid.cols-2{grid-template-columns:1.1fr 0.9fr;}
+    }
+    .card{
+      background:var(--card);
+      border-radius:1.1rem;
+      border:1px solid var(--border);
+      box-shadow:0 10px 24px rgba(15,23,42,0.45);
+      overflow:hidden;
+    }
+    .card-header{
+      padding:0.8rem 1rem;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;
+    }
+    .card-title{font-size:0.95rem;font-weight:800;display:flex;align-items:center;gap:0.5rem;}
+    .card-body{padding:0.85rem 1rem 1rem;}
+    .btn{
+      border-radius:0.7rem;
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      padding:0.4rem 0.7rem;
+      font-size:0.82rem;
+      font-weight:700;
+      cursor:pointer;
+      display:inline-flex;align-items:center;gap:0.35rem;
+      transition:all 0.15s ease;
+    }
+    .btn-sm{padding:0.28rem 0.55rem;font-size:0.78rem;}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#0369a1);color:white;border-color:rgba(56,189,248,0.8);}
+    .btn-success{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.6);}
+    .btn-danger{background:rgba(239,68,68,0.14);border-color:rgba(239,68,68,0.7);}
+    .btn-ghost{background:transparent;}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(148,163,184,0.8);}
+    .btn-primary:hover{box-shadow:0 0 0 1px rgba(56,189,248,0.4);}
+    .kpi{
+      border-radius:0.8rem;
+      border:1px solid var(--border);
+      background:var(--card2);
+      padding:0.65rem 0.75rem;
+      display:flex;flex-direction:column;gap:0.22rem;
+    }
+    .kpi .label{font-size:0.75rem;color:var(--muted);font-weight:700;}
+    .kpi .value{font-size:1.25rem;font-weight:800;}
+    table{width:100%;border-collapse:separate;border-spacing:0;}
+    thead th{
+      position:sticky;top:0;
+      background:var(--card);
+      text-align:left;
+      padding:0.5rem;
+      font-size:0.75rem;
+      color:var(--muted);
+      font-weight:800;
+      border-bottom:1px solid var(--border);
+      z-index:1;
+    }
+    tbody td{
+      padding:0.45rem 0.5rem;
+      font-size:0.82rem;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+    }
+    tbody tr:hover td{background:rgba(15,23,42,0.65);}
+    .td-muted{color:var(--muted);}
+    .pl-pos{color:#22c55e;font-weight:800;}
+    .pl-neg{color:#ef4444;font-weight:800;}
+    .empty{padding:0.6rem 0.2rem;color:var(--muted);font-size:0.85rem;text-align:center;}
+    .trades-table-lg thead th{font-size:0.8rem;padding:0.55rem 0.6rem;}
+    .trades-table-lg tbody td{font-size:0.9rem;padding:0.6rem 0.65rem;}
+    .pipeline{display:grid;gap:0.8rem;}
+    @media(min-width:900px){.pipeline{grid-template-columns:repeat(4,1fr);}}
+    .stage-title{font-weight:800;font-size:0.85rem;color:var(--text);display:flex;align-items:center;gap:0.4rem;}
+    .stage-list{display:flex;flex-direction:column;gap:0.4rem;}
+    .op-card{
+      border-radius:0.85rem;
+      border:1px solid var(--border);
+      background:var(--card2);
+      padding:0.6rem;
+      display:flex;flex-direction:column;gap:0.3rem;
+    }
+    .op-head{display:flex;align-items:center;justify-content:space-between;gap:0.4rem;}
+    .op-ticker{font-weight:800;font-size:0.9rem;}
+    .op-meta{font-size:0.75rem;color:var(--muted);font-weight:600;}
+    .op-actions{display:flex;flex-wrap:wrap;gap:0.3rem;}
+    .tag{
+      font-size:0.7rem;font-weight:800;
+      padding:0.06rem 0.4rem;border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+    }
+
+    .ticker-link{
+      color:var(--janus-dark);
+      text-decoration:none;
+      font-weight:700;
+      transition:all 0.18s ease;
+    }
+    .ticker-link:hover{
+      color:var(--janus);
+      text-decoration:underline;
+    }
+    .editable{
+      cursor:pointer;
+      transition:background 0.15s ease;
+    }
+    .editable:hover{
+      background:rgba(56,189,248,0.12);
+    }
+    .sortable{
+      cursor:pointer;
+      user-select:none;
+      transition:color 0.15s ease;
+    }
+    .sortable:hover{
+      color:var(--accent);
+    }
+    .sortable::after{
+      content:" ⇅";
+      opacity:0.4;
+      font-size:0.7em;
+    }
+    .sortable.asc::after{
+      content:" ↑";
+      opacity:1;
+    }
+    .sortable.desc::after{
+      content:" ↓";
+      opacity:1;
+    }
+    .earnings-soon{
+      color:var(--warn);
+      font-weight:700;
+    }
+    .earnings-imminent{
+      color:var(--bad);
+      font-weight:800;
+    }
+
+    /* Toast Notifications */
+    .toast-container{
+      position:fixed;
+      bottom:1.5rem;
+      right:1.5rem;
+      z-index:100;
+      display:flex;
+      flex-direction:column;
+      gap:0.5rem;
+      pointer-events:none;
+    }
+    .toast{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:0.75rem;
+      padding:0.75rem 1rem;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4);
+      display:flex;
+      align-items:center;
+      gap:0.6rem;
+      font-size:0.85rem;
+      font-weight:600;
+      pointer-events:auto;
+      animation:toastIn 0.3s ease;
+      max-width:320px;
+    }
+    .toast.toast-out{
+      animation:toastOut 0.3s ease forwards;
+    }
+    .toast-success{
+      border-color:rgba(34,197,94,0.6);
+      background:linear-gradient(135deg,var(--card),rgba(34,197,94,0.1));
+    }
+    .toast-success i{color:var(--good);}
+    .toast-error{
+      border-color:rgba(239,68,68,0.6);
+      background:linear-gradient(135deg,var(--card),rgba(239,68,68,0.1));
+    }
+    .toast-error i{color:var(--bad);}
+    .toast-info{
+      border-color:rgba(56,189,248,0.6);
+      background:linear-gradient(135deg,var(--card),rgba(56,189,248,0.1));
+    }
+    .toast-info i{color:var(--accent);}
+    .toast-warning{
+      border-color:rgba(234,179,8,0.6);
+      background:linear-gradient(135deg,var(--card),rgba(234,179,8,0.1));
+    }
+    .toast-warning i{color:var(--warn);}
+    @keyframes toastIn{
+      from{opacity:0;transform:translateX(100%);}
+      to{opacity:1;transform:translateX(0);}
+    }
+    @keyframes toastOut{
+      from{opacity:1;transform:translateX(0);}
+      to{opacity:0;transform:translateX(100%);}
+    }
+
+    /* Search Input */
+    .search-box{
+      position:relative;
+      margin-bottom:0.75rem;
+    }
+    .search-box input{
+      padding-left:2.2rem;
+      background:var(--bg2);
+    }
+    .search-box i{
+      position:absolute;
+      left:0.75rem;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      font-size:0.85rem;
+    }
+    .search-box .clear-search{
+      position:absolute;
+      right:0.5rem;
+      top:50%;
+      transform:translateY(-50%);
+      background:none;
+      border:none;
+      color:var(--muted);
+      cursor:pointer;
+      padding:0.25rem;
+      display:none;
+    }
+    .search-box .clear-search.visible{
+      display:block;
+    }
+    .search-box .clear-search:hover{
+      color:var(--text);
+    }
+
+    /* News article styling */
+    .news-article{
+      transition:border-color 0.15s ease;
+    }
+    .news-article:hover{
+      border-color:var(--accent);
+    }
+    .news-article a:hover{
+      color:var(--accent);
+    }
+
+    .tag.t1{color:#bbf7d0;border-color:rgba(34,197,94,0.7);background:rgba(22,163,74,0.18);}
+    .tag.t2{color:#fef3c7;border-color:rgba(234,179,8,0.8);background:rgba(234,179,8,0.22);}
+    .tag.t3{color:#fecaca;border-color:rgba(239,68,68,0.8);background:rgba(239,68,68,0.2);}
+    .heatmap-weekdays{
+      display:grid;grid-template-columns:repeat(7,1fr);
+      font-size:0.68rem;color:var(--muted);
+      margin-bottom:0.25rem;text-align:center;
+    }
+    .heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0.22rem;}
+    .hm-cell{
+      position:relative;
+      width:100%;padding-top:100%;
+      border-radius:0.45rem;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,0.8);
+      overflow:hidden;
+    }
+    .hm-empty{border-style:dashed;background:transparent;}
+    .hm-cell-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#ffffff;}
+    .heatmap-legend{
+      margin-top:0.55rem;display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--muted);
+    }
+    .legend-bar{flex:1;height:0.45rem;border-radius:999px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr 1fr;}
+    .legend-neg{background:rgba(239,68,68,0.9);}
+    .legend-neutral{background:rgba(148,163,184,0.5);}
+    .legend-pos{background:rgba(34,197,94,0.9);}
+    input,select,textarea{
+      width:100%;
+      background:var(--bg2);
+      border-radius:0.6rem;
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:0.45rem 0.55rem;
+      font-size:0.85rem;
+      font-family:inherit;
+    }
+    label{font-size:0.75rem;color:var(--muted);font-weight:700;margin-bottom:0.18rem;display:block;}
+    .form-row{display:grid;gap:0.6rem;margin-bottom:0.4rem;}
+    @media(min-width:650px){.form-row.cols-2{grid-template-columns:repeat(2,1fr);}}
+    .modal-backdrop{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,0.6);
+      display:none;align-items:center;justify-content:center;
+      z-index:40;padding:1rem;
+    }
+    .modal{
+      width:100%;max-width:720px;
+      background:var(--card);
+      border-radius:1rem;
+      border:1px solid var(--border);
+      box-shadow:0 24px 60px rgba(0,0,0,0.85);
+      overflow:hidden;
+    }
+    .modal-header{
+      padding:0.7rem 0.9rem;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:0.4rem;
+    }
+    .modal-title{font-size:0.95rem;font-weight:800;}
+    .modal-body{padding:0.8rem 0.9rem 0.4rem;}
+    .modal-footer{
+      padding:0.7rem 0.9rem;
+      border-top:1px solid var(--border);
+      display:flex;justify-content:flex-end;gap:0.4rem;
+    }
+  </style>
+</head>
+<body data-theme="light">
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div>JANUS Command Center <span id="versionTag">v9.7</span></div>
+    </div>
+    <div class="actions">
+      <div class="pill"><i class="fa-regular fa-clock"></i><span id="systemDate"></span></div>
+      <button class="btn btn-sm" id="themeToggle"><i class="fa-solid fa-circle-half-stroke"></i> Theme</button>
+      <button class="btn btn-sm" id="backupBtn"><i class="fa-solid fa-download"></i> Backup</button>
+    </div>
+  </div>
+  <nav>
+    <button class="tab-btn active" onclick="switchTab('home',event)"><i class="fa-solid fa-satellite-dish"></i> Home</button>
+    <button class="tab-btn" onclick="switchTab('opportunities',event)"><i class="fa-solid fa-layer-group"></i> Opportunities</button>
+    <button class="tab-btn" onclick="switchTab('trades',event)"><i class="fa-solid fa-briefcase"></i> Trades</button>
+    <button class="tab-btn" onclick="switchTab('news',event)"><i class="fa-solid fa-newspaper"></i> News</button>
+    <button class="tab-btn" onclick="switchTab('analytics',event)"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+    <button class="tab-btn" onclick="switchTab('settings',event)"><i class="fa-solid fa-gear"></i> Settings</button>
+    <button class="btn btn-sm btn-primary" id="globalRefreshBtn" onclick="refreshAllData()" style="margin-left:auto;"><i class="fa-solid fa-rotate"></i> Refresh All</button>
+  </nav>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="home" class="tab-content" style="display:block;">
+    <div class="grid cols-3">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-gauge-high"></i> Regime</div>
+          <button class="btn btn-sm" onclick="openRegimeModal()">Edit</button>
+        </div>
+        <div class="card-body" id="regimeBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-wallet"></i> Cash & Risk</div>
+        </div>
+        <div class="card-body" id="cashBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-bolt"></i> Priority Queue</div>
+          <div class="op-actions">
+            <button class="btn btn-sm btn-ghost" onclick="rebuildPriorityQueue()"><i class="fa-solid fa-rotate"></i></button>
+          </div>
+        </div>
+        <div class="card-body" id="priorityQueue"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-layer-group"></i> Active Trades</div>
+        <div class="op-actions">
+          <button class="btn btn-sm btn-success" onclick="openAddTradeModal('CSP')"><i class="fa-solid fa-plus"></i> CSP</button>
+          <button class="btn btn-sm btn-success" onclick="openAddTradeModal('CC')"><i class="fa-solid fa-plus"></i> CC</button>
+          <button class="btn btn-sm btn-success" onclick="openAddTradeModal('Swing')"><i class="fa-solid fa-plus"></i> Swing</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="activeTradesTable"></div>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="margin-top:1rem;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Consistency Heatmap</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <button class="btn btn-sm" onclick="prevHeatmapMonth()"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="heatmapMonthLabel" style="font-weight:800;font-size:0.8rem;min-width:8rem;text-align:center;"></span>
+            <button class="btn btn-sm" onclick="nextHeatmapMonth()"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="heatmap-weekdays">
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+          </div>
+          <div id="calendarHeatmap" class="heatmap-grid"></div>
+          <div class="heatmap-legend">
+            <span>Loss</span>
+            <div class="legend-bar">
+              <div class="legend-neg"></div><div class="legend-neutral"></div><div class="legend-pos"></div>
+            </div>
+            <span>Win</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-chart-area"></i> R Equity Curve</div>
+        </div>
+        <div class="card-body" id="rCurveBox">
+          <div class="empty">Not enough closed trades with R to plot yet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPPORTUNITIES -->
+  <section id="opportunities" class="tab-content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-layer-group"></i> Opportunity Pipeline</div>
+        <div class="op-actions">
+          <button class="btn btn-sm btn-primary" onclick="openOpportunityModal()"><i class="fa-solid fa-plus"></i> New</button>
+          <button class="btn btn-sm" onclick="applyRegimeGate()"><i class="fa-solid fa-filter"></i> Regime Gate</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pipeline" id="pipelineStages"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-coins"></i> Wheel Watchlist</div>
+        <div class="op-actions">
+          <button class="btn btn-sm" id="refreshWheelPricesBtn" onclick="refreshWatchlistPrices('wheel')"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
+          <button class="btn btn-sm btn-primary" onclick="openAddWatchlistModal('wheel')"><i class="fa-solid fa-plus"></i> Add Ticker</button>
+        </div>
+      </div>
+      <div class="card-body" id="wheelWatchlistBox"></div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-chart-line"></i> Swing Watchlist</div>
+        <div class="op-actions">
+          <button class="btn btn-sm" id="refreshSwingPricesBtn" onclick="refreshWatchlistPrices('swing')"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
+          <button class="btn btn-sm btn-primary" onclick="openAddWatchlistModal('swing')"><i class="fa-solid fa-plus"></i> Add Ticker</button>
+        </div>
+      </div>
+      <div class="card-body" id="swingWatchlistBox"></div>
+    </div>
+  </section>
+
+  <!-- TRADES -->
+  <section id="trades" class="tab-content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+      <div class="card-title"><i class="fa-solid fa-briefcase"></i> Open Trades</div>
+      <div class="card-actions">
+        <button class="btn btn-sm" id="refreshPricesBtn" onclick="updateOpenTradePrices()"><i class="fa-solid fa-rotate"></i> Refresh Prices</button>
+      </div>
+    </div>
+      <div class="card-body" id="openTradesTable"></div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-header"><div class="card-title"><i class="fa-solid fa-box-archive"></i> Closed Trades</div></div>
+      <div class="card-body" id="closedTradesTableBox"></div>
+    </div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section id="analytics" class="tab-content" style="display:none;">
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fa-solid fa-chart-pie"></i> Expectancy by Type</div></div>
+        <div class="card-body" id="expectancyBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fa-solid fa-table"></i> Regime × Type</div></div>
+        <div class="card-body" id="regimeMatrixBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section id="news" class="tab-content" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-newspaper"></i> Watchlist & Portfolio News</div>
+        <div class="op-actions">
+          <button class="btn btn-sm" id="refreshNewsBtn" onclick="refreshNews()"><i class="fa-solid fa-rotate"></i> Refresh News</button>
+        </div>
+      </div>
+      <div class="card-body" id="newsBox">
+        <div class="empty">Click "Refresh News" to load latest news for your watchlist and active trades.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="tab-content" style="display:none;">
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fa-solid fa-database"></i> Data</div></div>
+        <div class="card-body">
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="exportData()"><i class="fa-solid fa-download"></i> Export JSON</button>
+            <label class="btn" style="cursor:pointer;">
+              <i class="fa-solid fa-upload"></i> Import JSON
+              <input type="file" id="importFile" accept="application/json" style="display:none;"/>
+            </label>
+            <button class="btn btn-danger" onclick="resetData()"><i class="fa-solid fa-trash"></i> Reset</button>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.6rem;">
+            <button class="btn" onclick="exportTradesCSV()"><i class="fa-solid fa-file-csv"></i> Export Trades CSV</button>
+            <button class="btn" onclick="exportWatchlistCSV('wheel')"><i class="fa-solid fa-file-csv"></i> Wheel CSV</button>
+            <button class="btn" onclick="exportWatchlistCSV('swing')"><i class="fa-solid fa-file-csv"></i> Swing CSV</button>
+          </div>
+          <p class="td-muted" style="margin-top:0.6rem;font-size:0.8rem;">
+            All data is stored locally in your browser. Export before major changes.
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-book"></i> Playbooks</div>
+          <button class="btn btn-sm btn-primary" onclick="addDefaultPlaybooks()">Add Defaults</button>
+        </div>
+        <div class="card-body" id="playbooksBox"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Opportunity Modal -->
+<div class="modal-backdrop" id="opModalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="opModalTitle">New Opportunity</div>
+      <button class="btn btn-sm btn-ghost" onclick="closeOpportunityModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div>
+          <label for="opTicker">Ticker</label>
+          <input id="opTicker" placeholder="JPM">
+        </div>
+        <div>
+          <label for="opTier">Tier</label>
+          <select id="opTier">
+            <option value="T1">T1 Fortress</option>
+            <option value="T2">T2 Neutral</option>
+            <option value="T3">T3 Danger</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="opStrategies">Allowed Strategies</label>
+          <select id="opStrategies" multiple>
+            <option>Wheel</option>
+            <option>Swing</option>
+          </select>
+        </div>
+        <div>
+          <label for="opStage">Stage</label>
+          <select id="opStage">
+            <option value="backlog">Backlog</option>
+            <option value="allowed">Allowed This Week</option>
+            <option value="deploy">Deploy List</option>
+            <option value="triggered">Triggered</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label for="opSetup">Setup / Thesis</label>
+        <textarea id="opSetup" rows="2" placeholder="CSP at support, rotation into quality..."></textarea>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="opTrigger">Entry Trigger</label>
+          <input id="opTrigger" placeholder="Hold $295 → sell 290P 30-45DTE">
+        </div>
+        <div>
+          <label for="opInvalidation">Invalidation</label>
+          <input id="opInvalidation" placeholder="Close below $285">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="opRegime">Regime Compatibility</label>
+          <select id="opRegime">
+            <option value="any">Any</option>
+            <option value="high">High Confidence Only</option>
+            <option value="med">Med+ Confidence</option>
+            <option value="low">Low Confidence OK</option>
+          </select>
+        </div>
+        <div>
+          <label for="opEarnings">Earnings (optional)</label>
+          <input id="opEarnings" type="date">
+        </div>
+      </div>
+      <div>
+        <label for="opTags">Tags (comma separated)</label>
+        <input id="opTags" placeholder="income, rotation, earnings">
+      </div>
+      <div>
+        <label for="opNotes">Notes</label>
+        <input id="opNotes">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeOpportunityModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOpportunity()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Regime Modal -->
+<div class="modal-backdrop" id="regimeModalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Regime</div>
+      <button class="btn btn-sm btn-ghost" onclick="closeRegimeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div>
+          <label for="regimeLabel">Label</label>
+          <select id="regimeLabel">
+            <option>BULL / HIGH CONFIDENCE</option>
+            <option>CAUTIOUS / LOW CONFIDENCE</option>
+            <option>VOLATILE / MED CONFIDENCE</option>
+            <option>RANGE / MED CONFIDENCE</option>
+          </select>
+        </div>
+        <div>
+          <label for="regimeConfidence">Confidence (0-1)</label>
+          <input id="regimeConfidence" type="number" step="0.01" min="0" max="1">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="regimeVix">VIX</label>
+          <input id="regimeVix" type="number" step="0.1">
+        </div>
+        <div>
+          <label for="regimeCashMin">Cash Min %</label>
+          <input id="regimeCashMin" type="number" min="0" max="100">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="regimeCashMax">Cash Max %</label>
+          <input id="regimeCashMax" type="number" min="0" max="100">
+        </div>
+        <div>
+          <label for="regimeNotes">Notes</label>
+          <input id="regimeNotes">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeRegimeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRegime()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trade Modal -->
+<div class="modal-backdrop" id="tradeModalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="tradeModalTitle">New Trade</div>
+      <button class="btn btn-sm btn-ghost" onclick="closeTradeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div>
+          <label for="tradeTicker">Ticker</label>
+          <input id="tradeTicker" placeholder="JPM">
+        </div>
+        <div>
+          <label for="tradeType">Type</label>
+          <select id="tradeType">
+            <option value="CSP">CSP</option>
+            <option value="CC">CC</option>
+            <option value="Swing">Swing</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="tradeEntryDate">Entry Date</label>
+          <input id="tradeEntryDate" type="date">
+        </div>
+        <div>
+          <label for="tradeExpDate">Expiration (Wheel only)</label>
+          <input id="tradeExpDate" type="date">
+        </div>
+      </div>
+      <div id="swingFields" class="form-row cols-2">
+        <div>
+          <label for="tradeEntry">Entry Price</label>
+          <input id="tradeEntry" type="number" step="0.01">
+        </div>
+        <div>
+          <label for="tradeShares">Shares</label>
+          <input id="tradeShares" type="number" step="1">
+        </div>
+        <div>
+          <label for="tradeStop">Stop Price</label>
+          <input id="tradeStop" type="number" step="0.01">
+        </div>
+        <div>
+          <label for="tradeTarget">Target Price</label>
+          <input id="tradeTarget" type="number" step="0.01">
+        </div>
+      </div>
+      <div id="wheelFields" class="form-row cols-2">
+        <div>
+          <label for="tradeStrike">Strike</label>
+          <input id="tradeStrike" type="number" step="0.01">
+        </div>
+        <div>
+          <label for="tradePremium">Premium per contract ($)</label>
+          <input id="tradePremium" type="number" step="0.01">
+        </div>
+        <div>
+          <label for="tradeQuantity">Contracts</label>
+          <input id="tradeQuantity" type="number" step="1">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="tradeOneR">1R ($)</label>
+          <input id="tradeOneR" type="number" step="0.01" placeholder="Leave blank to auto-calc for Swing">
+        </div>
+        <div>
+          <label for="tradeNotes">Notes</label>
+          <input id="tradeNotes">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeTradeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTradeFromModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Close Trade Modal -->
+<div class="modal-backdrop" id="closeModalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Close Trade</div>
+      <button class="btn btn-sm btn-ghost" onclick="closeCloseModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div>
+          <label for="closeDate">Close Date</label>
+          <input id="closeDate" type="date">
+        </div>
+        <div>
+          <label for="closePL">Realized P/L ($)</label>
+          <input id="closePL" type="number" step="0.01">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="closeOneR">1R ($)</label>
+          <input id="closeOneR" type="number" step="0.01">
+        </div>
+        <div>
+          <label for="closeRMultiple">R Multiple</label>
+          <input id="closeRMultiple" type="number" step="0.01">
+          <div class="td-muted" style="font-size:0.72rem;margin-top:0.2rem;">
+            Leave blank to auto-calc from P/L ÷ 1R.
+          </div>
+        </div>
+      </div>
+      <div>
+        <label for="closeNotes">Notes</label>
+        <input id="closeNotes">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeCloseModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCloseTradeFromModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Watchlist Item Modal -->
+<div class="modal-backdrop" id="watchlistModalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="watchlistModalTitle">Add to Watchlist</div>
+      <button class="btn btn-sm btn-ghost" onclick="closeWatchlistModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-2">
+        <div>
+          <label for="wlTicker">Ticker</label>
+          <input id="wlTicker" placeholder="AAPL">
+        </div>
+        <div>
+          <label for="wlName">Name</label>
+          <input id="wlName" placeholder="Apple Inc.">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="wlTier">Tier</label>
+          <select id="wlTier">
+            <option value="T1">T1 Fortress</option>
+            <option value="T2">T2 Neutral</option>
+            <option value="T3">T3 Danger</option>
+          </select>
+        </div>
+        <div>
+          <label for="wlSector">Sector</label>
+          <input id="wlSector" placeholder="Tech">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="wlPrice">Price ($)</label>
+          <input id="wlPrice" type="number" step="0.01">
+        </div>
+        <div>
+          <label for="wlEarnings">Earnings Date</label>
+          <input id="wlEarnings" type="date">
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div>
+          <label for="wlRegimes">Regimes</label>
+          <input id="wlRegimes" placeholder="ALL, HIGH, MED, LOW">
+        </div>
+        <div>
+          <label for="wlNotes">Notes</label>
+          <input id="wlNotes" placeholder="Optional notes">
+        </div>
+      </div>
+      <!-- Wheel-specific fields -->
+      <div id="wlWheelFields">
+        <div class="form-row cols-2">
+          <div>
+            <label for="wlCspStrike">CSP Strike</label>
+            <input id="wlCspStrike" placeholder="$50-52">
+          </div>
+          <div>
+            <label for="wlPremium">Premium</label>
+            <input id="wlPremium" placeholder="$80-120">
+          </div>
+        </div>
+      </div>
+      <!-- Swing-specific fields -->
+      <div id="wlSwingFields" style="display:none;">
+        <div class="form-row cols-2">
+          <div>
+            <label for="wlEntrySignal">Entry Signal</label>
+            <input id="wlEntrySignal" placeholder="Pullback to support">
+          </div>
+          <div>
+            <label for="wlTargetPct">Target %</label>
+            <input id="wlTargetPct" placeholder="+15-20%">
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div>
+            <label for="wlStopPct">Stop %</label>
+            <input id="wlStopPct" placeholder="8%">
+          </div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeWatchlistModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWatchlistItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "janus_v9_7_data";
+
+const FINNHUB_KEY = "d3vrgk1r01qhm1tenkq0d3vrgk1r01qhm1tenkqg"; // Finnhub API key pulled from v6.0
+
+// Toast Notification System
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  
+  const icons = {
+    success: 'fa-circle-check',
+    error: 'fa-circle-xmark',
+    warning: 'fa-triangle-exclamation',
+    info: 'fa-circle-info'
+  };
+  
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.classList.add('toast-out');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// Watchlist Search State
+let wheelSearchTerm = '';
+let swingSearchTerm = '';
+
+function updateWatchlistSearch(kind, value) {
+  if (kind === 'wheel') {
+    wheelSearchTerm = value.toLowerCase();
+    renderWheelWatchlist();
+  } else {
+    swingSearchTerm = value.toLowerCase();
+    renderSwingWatchlist();
+  }
+  
+  // Update clear button visibility
+  const clearBtn = document.getElementById(`${kind}SearchClear`);
+  if (clearBtn) {
+    clearBtn.classList.toggle('visible', value.length > 0);
+  }
+}
+
+function clearWatchlistSearch(kind) {
+  const input = document.getElementById(`${kind}SearchInput`);
+  if (input) {
+    input.value = '';
+    updateWatchlistSearch(kind, '');
+  }
+}
+
+function filterWatchlist(list, searchTerm) {
+  if (!searchTerm) return list;
+  return list.filter(item => {
+    const searchable = [
+      item.ticker,
+      item.name,
+      item.sector,
+      item.tier,
+      item.notes,
+      item.regimes
+    ].filter(Boolean).join(' ').toLowerCase();
+    return searchable.includes(searchTerm);
+  });
+}
+
+// Fetch upcoming earnings date for a symbol from Finnhub
+async function fetchEarningsDate(symbol) {
+  if (!FINNHUB_KEY) return null;
+  try {
+    // Get earnings for next 90 days
+    const today = new Date();
+    const future = new Date(today);
+    future.setDate(future.getDate() + 90);
+    const fromDate = today.toISOString().slice(0, 10);
+    const toDate = future.toISOString().slice(0, 10);
+    
+    const response = await fetch(
+      `https://finnhub.io/api/v1/calendar/earnings?symbol=${symbol}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`
+    );
+    if (!response.ok) throw new Error('Finnhub earnings API error');
+    const data = await response.json();
+    
+    // Find the next earnings date for this symbol
+    if (data && data.earningsCalendar && data.earningsCalendar.length > 0) {
+      // Sort by date and get the earliest upcoming one
+      const sorted = data.earningsCalendar
+        .filter(e => e.symbol === symbol && e.date)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (sorted.length > 0) {
+        return sorted[0].date; // Returns YYYY-MM-DD format
+      }
+    }
+    return null;
+  } catch (err) {
+    console.error('Finnhub earnings error for', symbol, err);
+    return null;
+  }
+}
+
+// Bulk Price & Earnings Refresh for Watchlists
+async function refreshWatchlistPrices(kind) {
+  const btnId = kind === 'wheel' ? 'refreshWheelPricesBtn' : 'refreshSwingPricesBtn';
+  const btn = document.getElementById(btnId);
+  const list = kind === 'wheel' ? appData.wheelWatchlist : appData.swingWatchlist;
+  
+  if (!list || !list.length) {
+    showToast('No items in watchlist to refresh', 'warning');
+    return;
+  }
+  
+  let originalLabel = '';
+  if (btn) {
+    btn.disabled = true;
+    originalLabel = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+  }
+  
+  let pricesUpdated = 0;
+  let earningsUpdated = 0;
+  let failed = 0;
+  
+  try {
+    for (const item of list) {
+      if (!item.ticker) continue;
+      try {
+        // Fetch price
+        const priceData = await fetchFromFinnhub(item.ticker);
+        if (priceData && typeof priceData.c === 'number' && priceData.c > 0) {
+          item.price = priceData.c;
+          pricesUpdated++;
+        } else {
+          failed++;
+        }
+        
+        // Rate limit between requests
+        await new Promise(r => setTimeout(r, 150));
+        
+        // Fetch earnings date
+        const earningsDate = await fetchEarningsDate(item.ticker);
+        if (earningsDate) {
+          item.earnings = earningsDate;
+          earningsUpdated++;
+        }
+        
+        // Rate limit between tickers
+        await new Promise(r => setTimeout(r, 150));
+      } catch (err) {
+        console.error('Error fetching data for', item.ticker, err);
+        failed++;
+      }
+    }
+    
+    saveToLocalStorage();
+    if (kind === 'wheel') {
+      renderWheelWatchlist();
+    } else {
+      renderSwingWatchlist();
+    }
+    
+    // Build status message
+    let msg = `Updated ${pricesUpdated} prices`;
+    if (earningsUpdated > 0) {
+      msg += `, ${earningsUpdated} earnings dates`;
+    }
+    if (failed > 0) {
+      msg += ` (${failed} failed)`;
+      showToast(msg, 'warning');
+    } else {
+      showToast(msg, 'success');
+    }
+  } catch (err) {
+    showToast('Error refreshing data', 'error');
+    console.error('Bulk refresh error:', err);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalLabel || '<i class="fa-solid fa-rotate"></i> Refresh Data';
+    }
+  }
+}
+
+async function fetchFromFinnhub(symbol){
+  if(!FINNHUB_KEY) return null;
+  try{
+    const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
+    if(!response.ok) throw new Error("Finnhub API error");
+    return await response.json();
+  }catch(err){
+    console.error("Finnhub error:", err);
+    return null;
+  }
+}
+
+// VIX Refresh using Finnhub (^VIX on Yahoo = ^GSPC:VIX on Finnhub doesn't work, so we use a proxy)
+async function refreshVIX() {
+  showToast('Fetching VIX...', 'info', 1500);
+  try {
+    // Finnhub uses ^GSPC for S&P, but VIX needs special handling
+    // We'll try to fetch VIX via the index endpoint
+    const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=^VIX&token=${FINNHUB_KEY}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && typeof data.c === 'number' && data.c > 0) {
+        appData.regime.vix = data.c;
+        saveToLocalStorage();
+        renderRegime();
+        showToast(`VIX updated: ${data.c.toFixed(2)}`, 'success');
+        return;
+      }
+    }
+    // Fallback message if VIX fetch fails
+    showToast('VIX auto-update unavailable. Update manually via Edit.', 'warning');
+  } catch (err) {
+    console.error('VIX fetch error:', err);
+    showToast('VIX fetch failed. Update manually.', 'error');
+  }
+}
+
+// CNN Fear & Greed Index Fetch
+async function refreshFearGreed() {
+  showToast('Fetching Fear & Greed Index...', 'info', 1500);
+  try {
+    const response = await fetch('https://production.dataviz.cnn.io/index/fearandgreed/graphdata');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.fear_and_greed) {
+        const fg = data.fear_and_greed;
+        appData.regime.fearGreed = {
+          score: fg.score,
+          rating: fg.rating,
+          timestamp: fg.timestamp,
+          previousClose: fg.previous_close,
+          previous1Week: fg.previous_1_week,
+          previous1Month: fg.previous_1_month,
+          previous1Year: fg.previous_1_year
+        };
+        saveToLocalStorage();
+        renderRegime();
+        showToast(`Fear & Greed: ${Math.round(fg.score)} (${fg.rating})`, 'success');
+        return;
+      }
+    }
+    showToast('Fear & Greed fetch failed', 'warning');
+  } catch (err) {
+    console.error('Fear & Greed fetch error:', err);
+    showToast('Fear & Greed fetch failed', 'error');
+  }
+}
+
+// News API Key (NewsAPI.org) - Add your key here
+const NEWSAPI_KEY = ''; // Add your NewsAPI.org key here
+
+// Get all unique tickers from watchlists and active trades
+function getAllTrackedTickers() {
+  const tickers = new Set();
+  
+  // From wheel watchlist
+  (appData.wheelWatchlist || []).forEach(item => {
+    if (item.ticker) tickers.add(item.ticker.toUpperCase());
+  });
+  
+  // From swing watchlist
+  (appData.swingWatchlist || []).forEach(item => {
+    if (item.ticker) tickers.add(item.ticker.toUpperCase());
+  });
+  
+  // From active trades
+  (appData.trades || []).forEach(trade => {
+    if (trade.ticker) tickers.add(trade.ticker.toUpperCase());
+  });
+  
+  return Array.from(tickers);
+}
+
+// Fetch news from Finnhub for a symbol
+async function fetchFinnhubNews(symbol) {
+  if (!FINNHUB_KEY) return [];
+  try {
+    const today = new Date();
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const from = weekAgo.toISOString().slice(0, 10);
+    const to = today.toISOString().slice(0, 10);
+    
+    const response = await fetch(
+      `https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${from}&to=${to}&token=${FINNHUB_KEY}`
+    );
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data || []).slice(0, 3).map(article => ({
+      ...article,
+      ticker: symbol,
+      source: article.source || 'Finnhub'
+    }));
+  } catch (err) {
+    console.error('Finnhub news error:', err);
+    return [];
+  }
+}
+
+// Fetch news from NewsAPI.org for a symbol
+async function fetchNewsAPINews(symbol) {
+  if (!NEWSAPI_KEY) return [];
+  try {
+    const response = await fetch(
+      `https://newsapi.org/v2/everything?q=${symbol}&language=en&sortBy=publishedAt&pageSize=5&apiKey=${NEWSAPI_KEY}`
+    );
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data.articles || []).slice(0, 3).map(article => ({
+      headline: article.title,
+      summary: article.description,
+      url: article.url,
+      datetime: article.publishedAt ? Math.floor(new Date(article.publishedAt).getTime() / 1000) : null,
+      source: article.source?.name || 'NewsAPI',
+      ticker: symbol
+    }));
+  } catch (err) {
+    console.error('NewsAPI error:', err);
+    return [];
+  }
+}
+
+// Refresh news for all tracked tickers (from both Finnhub and NewsAPI)
+async function refreshNews() {
+  const btn = document.getElementById('refreshNewsBtn');
+  const box = document.getElementById('newsBox');
+  
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+  }
+  
+  const tickers = getAllTrackedTickers();
+  
+  if (!tickers.length) {
+    box.innerHTML = '<div class="empty">No tickers in watchlists or active trades.</div>';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh News';
+    }
+    return;
+  }
+  
+  try {
+    let allNews = [];
+    let sourcesUsed = [];
+    
+    // Fetch from Finnhub (limit to first 10 tickers to avoid rate limits)
+    const tickersToFetch = tickers.slice(0, 10);
+    for (const ticker of tickersToFetch) {
+      const news = await fetchFinnhubNews(ticker);
+      allNews = allNews.concat(news);
+      await new Promise(r => setTimeout(r, 150)); // Rate limit
+    }
+    if (allNews.length > 0) sourcesUsed.push('Finnhub');
+    
+    // Fetch from NewsAPI if key is available (limit to first 5 tickers)
+    if (NEWSAPI_KEY) {
+      const newsApiTickers = tickers.slice(0, 5);
+      for (const ticker of newsApiTickers) {
+        const news = await fetchNewsAPINews(ticker);
+        allNews = allNews.concat(news);
+        await new Promise(r => setTimeout(r, 200)); // Rate limit
+      }
+      if (allNews.length > 0) sourcesUsed.push('NewsAPI');
+    }
+    
+    // Sort by date (newest first) and dedupe by headline
+    const seen = new Set();
+    allNews = allNews
+      .filter(article => {
+        const key = (article.headline || '').toLowerCase().slice(0, 50);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((a, b) => (b.datetime || 0) - (a.datetime || 0))
+      .slice(0, 40);
+    
+    if (!allNews.length) {
+      box.innerHTML = '<div class="empty">No recent news found for your tickers.</div>';
+    } else {
+      box.innerHTML = `
+        <div class="td-muted" style="font-size:0.75rem;margin-bottom:0.5rem;">Sources: ${sourcesUsed.join(', ') || 'None'}${!NEWSAPI_KEY ? ' • Add NewsAPI key in code for more coverage' : ''}</div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;max-height:600px;overflow:auto;">
+          ${allNews.map(article => {
+            const date = article.datetime ? new Date(article.datetime * 1000).toLocaleDateString() : '';
+            const time = article.datetime ? new Date(article.datetime * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+            return `
+              <div class="op-card news-article" style="padding:0.75rem;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+                  <div style="flex:1;">
+                    <a href="${article.url}" target="_blank" style="font-weight:700;color:var(--text);text-decoration:none;font-size:0.9rem;line-height:1.3;">
+                      ${article.headline || 'No headline'}
+                    </a>
+                    <div class="td-muted" style="font-size:0.75rem;margin-top:0.25rem;">
+                      ${article.source || ''} ${date ? `• ${date} ${time}` : ''}
+                    </div>
+                  </div>
+                  <span class="tag" style="flex-shrink:0;">${article.ticker || ''}</span>
+                </div>
+                ${article.summary ? `<div class="td-muted" style="font-size:0.8rem;margin-top:0.4rem;line-height:1.4;">${article.summary.slice(0, 200)}${article.summary.length > 200 ? '...' : ''}</div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      showToast(`Loaded ${allNews.length} articles from ${sourcesUsed.join(' & ')}`, 'success');
+    }
+  } catch (err) {
+    console.error('News refresh error:', err);
+    box.innerHTML = '<div class="empty">Error loading news. Try again.</div>';
+    showToast('Error loading news', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh News';
+    }
+  }
+}
+
+// CSV Export Functions
+function escapeCSV(value) {
+  if (value === null || value === undefined) return '';
+  const str = String(value);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+function downloadCSV(filename, csvContent) {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportTradesCSV() {
+  const openTrades = appData.trades || [];
+  const closedTrades = appData.tradeHistory || [];
+  
+  // Combine with status indicator
+  const allTrades = [
+    ...openTrades.map(t => ({ ...t, status: 'Open' })),
+    ...closedTrades.map(t => ({ ...t, status: 'Closed' }))
+  ];
+  
+  if (!allTrades.length) {
+    showToast('No trades to export', 'warning');
+    return;
+  }
+  
+  const headers = ['Status', 'Ticker', 'Type', 'Entry Date', 'Close Date', 'Strike', 'Premium', 'Quantity', 'Entry', 'Shares', 'Stop', 'Target', 'Capital', '1R', 'P/L', 'R Multiple', 'Holding Days', 'Notes'];
+  
+  const rows = allTrades.map(t => [
+    t.status,
+    t.ticker,
+    t.type,
+    t.entryDate || '',
+    t.closeDate ? String(t.closeDate).slice(0, 10) : '',
+    t.strike || '',
+    t.premium || '',
+    t.quantity || '',
+    t.entry || '',
+    t.shares || '',
+    t.stop || '',
+    t.target || '',
+    t.capital || t.investment || '',
+    t.oneR || '',
+    t.pl || '',
+    t.rMultiple || '',
+    t.holdingDays || '',
+    t.notes || ''
+  ].map(escapeCSV).join(','));
+  
+  const csvContent = [headers.join(','), ...rows].join('\n');
+  downloadCSV(`janus_trades_${fmtYMD(new Date())}.csv`, csvContent);
+  showToast('Trades exported to CSV', 'success');
+}
+
+function exportWatchlistCSV(kind) {
+  const list = kind === 'wheel' ? (appData.wheelWatchlist || []) : (appData.swingWatchlist || []);
+  
+  if (!list.length) {
+    showToast(`No ${kind} watchlist items to export`, 'warning');
+    return;
+  }
+  
+  let headers, rows;
+  
+  if (kind === 'wheel') {
+    headers = ['Ticker', 'Name', 'Tier', 'Sector', 'Price', 'CSP Strike', 'Premium', 'Earnings', 'Regimes', 'Support 1', 'Support 2', 'Notes'];
+    rows = list.map(w => [
+      w.ticker,
+      w.name,
+      w.tier,
+      w.sector,
+      w.price,
+      w.cspStrike,
+      w.premium,
+      w.earnings,
+      w.regimes,
+      w.support1,
+      w.support2,
+      w.notes
+    ].map(escapeCSV).join(','));
+  } else {
+    headers = ['Ticker', 'Name', 'Tier', 'Sector', 'Price', 'Entry Signal', 'Target %', 'Stop %', 'Earnings', 'Regimes', 'Support 1', 'Support 2', 'Notes'];
+    rows = list.map(w => [
+      w.ticker,
+      w.name,
+      w.tier,
+      w.sector,
+      w.price,
+      w.entrySignal,
+      w.targetPct,
+      w.stopPct,
+      w.earnings,
+      w.regimes,
+      w.support1,
+      w.support2,
+      w.notes
+    ].map(escapeCSV).join(','));
+  }
+  
+  const csvContent = [headers.join(','), ...rows].join('\n');
+  downloadCSV(`janus_${kind}_watchlist_${fmtYMD(new Date())}.csv`, csvContent);
+  showToast(`${kind.charAt(0).toUpperCase() + kind.slice(1)} watchlist exported to CSV`, 'success');
+}
+
+// Global Refresh All Data
+async function refreshAllData() {
+  const btn = document.getElementById('globalRefreshBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Refreshing...';
+  }
+  
+  showToast('Refreshing all data...', 'info', 2000);
+  
+  try {
+    // Refresh VIX
+    await refreshVIX();
+    await new Promise(r => setTimeout(r, 300));
+    
+    // Refresh Fear & Greed Index
+    await refreshFearGreed();
+    await new Promise(r => setTimeout(r, 300));
+    
+    // Refresh open trade prices
+    await updateOpenTradePrices();
+    await new Promise(r => setTimeout(r, 300));
+    
+    // Refresh wheel watchlist
+    await refreshWatchlistPrices('wheel');
+    await new Promise(r => setTimeout(r, 300));
+    
+    // Refresh swing watchlist
+    await refreshWatchlistPrices('swing');
+    
+    showToast('All data refreshed!', 'success');
+  } catch (err) {
+    console.error('Global refresh error:', err);
+    showToast('Some refreshes failed', 'warning');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh All';
+    }
+  }
+}
+
+async function updateOpenTradePrices(){
+  const btn = document.getElementById("refreshPricesBtn");
+  let originalLabel = "";
+  if(btn){
+    btn.disabled = true;
+    originalLabel = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+  }
+  try{
+    for(const t of appData.trades){
+      if(!t.ticker) continue;
+      try{
+        let price = null;
+        const data = await fetchFromFinnhub(t.ticker);
+        if(data && typeof data.c === "number" && data.c > 0){
+          price = data.c;
+        }
+        if(price){
+          t.currentPrice = price;
+        }
+        await new Promise(r=>setTimeout(r,200));
+      }catch(err){
+        console.error("Error fetching price for", t.ticker, err);
+      }
+    }
+    saveToLocalStorage();
+    renderOpenTradesTable();
+    renderActiveTradesTable();
+  }finally{
+    if(btn){
+      btn.disabled = false;
+      btn.innerHTML = originalLabel || '<i class="fa-solid fa-rotate"></i> Refresh Prices';
+    }
+  }
+}
+
+
+let appData = {
+  version:"9.3",
+  settings:{theme:"light",defaultOneRWheel:null,defaultOneRSwing:null},
+  regime:{
+    label:"CAUTIOUS / LOW CONFIDENCE",
+    confidence:0.4,
+    vix:25.3,
+    cashMin:40,
+    cashMax:50,
+    notes:"Tier 1 only; swings grounded."
+  },
+  trades:[],
+  tradeHistory:[],
+  opportunities:[],
+  playbooks:[],
+  wheelWatchlist:[],
+  swingWatchlist:[]
+};
+window.appData = appData;
+
+const WHEEL_WATCHLIST = [
+  {
+    ticker: "SCHD",
+    name: "Schwab US Dividend Equity ETF",
+    price: 27.0,
+    tier: "T1",
+    capitalPer100: 2700.0,
+    pctOf30k: "9%",
+    divYield: "3.86%",
+    sector: "Multi-Sector ETF",
+    cspStrike: "$25.50-26",
+    premium: "$40-70",
+    iv: "18-22%",
+    regimes: "ALL",
+    contractsPer30k: 11.0,
+    support1: 25.5,
+    support2: 24.0,
+    notes: "First position rec, instant diversification",
+  },
+  {
+    ticker: "DGRO",
+    name: "iShares Core Dividend Growth ETF",
+    price: 62.5,
+    tier: "T1",
+    capitalPer100: 6250.0,
+    pctOf30k: "21%",
+    divYield: "2.8%",
+    sector: "Multi-Sector ETF",
+    cspStrike: "$60-61",
+    premium: "$80-120",
+    iv: "16-20%",
+    regimes: "ALL",
+    contractsPer30k: 4.0,
+    support1: 60.0,
+    support2: 58.0,
+    notes: "Growth over yield focus",
+  },
+  {
+    ticker: "VYM",
+    name: "Vanguard High Dividend Yield ETF",
+    price: 70.5,
+    tier: "T1",
+    capitalPer100: 7050.0,
+    pctOf30k: "24%",
+    divYield: "3.1%",
+    sector: "Multi-Sector ETF",
+    cspStrike: "$68-69",
+    premium: "$90-140",
+    iv: "16-20%",
+    regimes: "ALL",
+    contractsPer30k: 4.0,
+    support1: 68.0,
+    support2: 66.0,
+    notes: "Value tilt, Vanguard quality",
+  },
+  {
+    ticker: "JEPI",
+    name: "JPMorgan Equity Premium Income",
+    price: 54.8,
+    tier: "T1",
+    capitalPer100: 5480.0,
+    pctOf30k: "18%",
+    divYield: "7.5%",
+    sector: "Multi-Sector ETF",
+    cspStrike: "$52-53",
+    premium: "$70-110",
+    iv: "14-18%",
+    regimes: "MED, LOW",
+    contractsPer30k: 5.0,
+    support1: 52.0,
+    support2: 50.0,
+    notes: "Options overlay, LOW regime ideal",
+  },
+  {
+    ticker: "JEPQ",
+    name: "JPMorgan Nasdaq Premium Income",
+    price: 51.2,
+    tier: "T1",
+    capitalPer100: 5120.0,
+    pctOf30k: "17%",
+    divYield: "6.8%",
+    sector: "Tech ETF",
+    cspStrike: "$49-50",
+    premium: "$60-100",
+    iv: "16-20%",
+    regimes: "HIGH, MED",
+    contractsPer30k: 5.0,
+    support1: 49.0,
+    support2: 47.0,
+    notes: "Tech + income combo",
+  },
+  {
+    ticker: "JNJ",
+    name: "Johnson & Johnson",
+    price: 197.0,
+    tier: "T1",
+    capitalPer100: 19700.0,
+    pctOf30k: "66%",
+    divYield: "2.64%",
+    sector: "Healthcare",
+    cspStrike: "$190-193",
+    premium: "$250-400",
+    iv: "16-20%",
+    regimes: "ALL",
+    contractsPer30k: 1.0,
+    support1: 190.0,
+    support2: 185.0,
+    notes: "AAA credit, Dividend King, too large for 30K",
+  },
+  {
+    ticker: "MSFT",
+    name: "Microsoft",
+    price: 510.0,
+    tier: "T1",
+    capitalPer100: 51000.0,
+    pctOf30k: "170%",
+    divYield: "0.7%",
+    sector: "Tech",
+    cspStrike: null,
+    premium: null,
+    iv: null,
+    regimes: "SWING ONLY",
+    contractsPer30k: 0.0,
+    support1: 490.0,
+    support2: 470.0,
+    notes: "Too expensive for 30K wheel - swing only",
+  },
+  {
+    ticker: "JPM",
+    name: "JPMorgan Chase",
+    price: 305.0,
+    tier: "T1",
+    capitalPer100: 30500.0,
+    pctOf30k: "102%",
+    divYield: "2.3%",
+    sector: "Financials",
+    cspStrike: null,
+    premium: null,
+    iv: null,
+    regimes: "SWING ONLY",
+    contractsPer30k: 0.0,
+    support1: 295.0,
+    support2: 285.0,
+    notes: "Too expensive for 30K wheel - swing only",
+  },
+  {
+    ticker: "KO",
+    name: "Coca-Cola",
+    price: 71.0,
+    tier: "T1",
+    capitalPer100: 7100.0,
+    pctOf30k: "24%",
+    divYield: "2.88%",
+    sector: "Consumer Staples",
+    cspStrike: "$68-69",
+    premium: "$90-140",
+    iv: "14-18%",
+    regimes: "ALL",
+    contractsPer30k: 4.0,
+    support1: 68.0,
+    support2: 66.0,
+    notes: "Dividend King, defensive, recession-proof",
+  },
+  {
+    ticker: "PEP",
+    name: "PepsiCo",
+    price: 146.0,
+    tier: "T1",
+    capitalPer100: 14600.0,
+    pctOf30k: "49%",
+    divYield: "3.0%",
+    sector: "Consumer Staples",
+    cspStrike: "$142-144",
+    premium: "$180-280",
+    iv: "15-19%",
+    regimes: "ALL",
+    contractsPer30k: 2.0,
+    support1: 142.0,
+    support2: 138.0,
+    notes: "Dividend King, snacks + beverages",
+  },
+  {
+    ticker: "AAPL",
+    name: "Apple",
+    price: 274.0,
+    tier: "T1",
+    capitalPer100: 27400.0,
+    pctOf30k: "91%",
+    divYield: "0.45%",
+    sector: "Tech",
+    cspStrike: null,
+    premium: null,
+    iv: null,
+    regimes: "SWING ONLY",
+    contractsPer30k: 0.0,
+    support1: 265.0,
+    support2: 255.0,
+    notes: "Too expensive for 30K wheel - swing only",
+  },
+  {
+    ticker: "XOM",
+    name: "Exxon Mobil",
+    price: 119.0,
+    tier: "T1",
+    capitalPer100: 11900.0,
+    pctOf30k: "40%",
+    divYield: "3.6%",
+    sector: "Energy",
+    cspStrike: "$115-117",
+    premium: "$150-200",
+    iv: "22-26%",
+    regimes: "ALL",
+    contractsPer30k: 2.0,
+    support1: 115.0,
+    support2: 110.0,
+    notes: "Energy gap filler, data center power demand",
+  },
+  {
+    ticker: "CSCO",
+    name: "Cisco Systems",
+    price: 79.0,
+    tier: "T1",
+    capitalPer100: 7900.0,
+    pctOf30k: "26%",
+    divYield: "2.1%",
+    sector: "Tech",
+    cspStrike: "$76-78",
+    premium: "$100-150",
+    iv: "20-24%",
+    regimes: "ALL",
+    contractsPer30k: 3.0,
+    support1: 76.0,
+    support2: 74.0,
+    notes: "Affordable tech, AI networking",
+  },
+  {
+    ticker: "USB",
+    name: "U.S. Bancorp",
+    price: 47.0,
+    tier: "T1",
+    capitalPer100: 4700.0,
+    pctOf30k: "16%",
+    divYield: "3.05%",
+    sector: "Financials",
+    cspStrike: "$45-46",
+    premium: "$60-90",
+    iv: "24-28%",
+    regimes: "CAUT+",
+    contractsPer30k: 6.0,
+    support1: 45.0,
+    support2: 43.0,
+    notes: "Can run 2-3 contracts, best regional bank",
+  },
+  {
+    ticker: "T",
+    name: "AT&T",
+    price: 26.0,
+    tier: "T1",
+    capitalPer100: 2560.0,
+    pctOf30k: "9%",
+    divYield: "5.0%",
+    sector: "Telecom",
+    cspStrike: "$24.50-25",
+    premium: "$30-50",
+    iv: "23-26%",
+    regimes: "ALL",
+    contractsPer30k: 11.0,
+    support1: 24.5,
+    support2: 23.0,
+    notes: "Can run 4-5 contracts, ultimate flexibility",
+  },
+  {
+    ticker: "MRVL",
+    name: "Marvell Technology",
+    price: 86.0,
+    tier: "T2",
+    capitalPer100: 8600.0,
+    pctOf30k: "29%",
+    divYield: "0.15%",
+    sector: "Semiconductors",
+    cspStrike: "$82-84",
+    premium: "$120-180",
+    iv: "35-45%",
+    regimes: "CAUT+, AGG",
+    contractsPer30k: 3.0,
+    support1: 82.0,
+    support2: 78.0,
+    notes: "AI infrastructure, high IV",
+  },
+  {
+    ticker: "BAC",
+    name: "Bank of America",
+    price: 53.0,
+    tier: "T2",
+    capitalPer100: 5300.0,
+    pctOf30k: "18%",
+    divYield: "2.05%",
+    sector: "Financials",
+    cspStrike: "$51-52",
+    premium: "$70-110",
+    iv: "24-30%",
+    regimes: "HIGH, AGG",
+    contractsPer30k: 5.0,
+    support1: 51.0,
+    support2: 49.0,
+    notes: "Rate sensitive, Economy #1",
+  },
+  {
+    ticker: "MO",
+    name: "Altria Group",
+    price: 58.0,
+    tier: "T2",
+    capitalPer100: 5800.0,
+    pctOf30k: "19%",
+    divYield: "7.5%",
+    sector: "Consumer Staples",
+    cspStrike: "$56-57",
+    premium: "$80-120",
+    iv: "20-25%",
+    regimes: "MED, LOW",
+    contractsPer30k: 5.0,
+    support1: 56.0,
+    support2: 54.0,
+    notes: "Tobacco cash cow, 7.5% yield",
+  },
+  {
+    ticker: "SO",
+    name: "Southern Company",
+    price: 91.0,
+    tier: "T2",
+    capitalPer100: 9100.0,
+    pctOf30k: "30%",
+    divYield: "3.5%",
+    sector: "Utilities",
+    cspStrike: "$88-89",
+    premium: "$120-180",
+    iv: "16-20%",
+    regimes: "ALL",
+    contractsPer30k: 3.0,
+    support1: 88.0,
+    support2: 85.0,
+    notes: "Regulated utility, data center play",
+  },
+  {
+    ticker: "GOOGL",
+    name: "Alphabet",
+    price: 277.0,
+    tier: "T2",
+    capitalPer100: 27700.0,
+    pctOf30k: "92%",
+    divYield: "~0%",
+    sector: "Tech",
+    cspStrike: null,
+    premium: null,
+    iv: null,
+    regimes: "SWING ONLY",
+    contractsPer30k: 0.0,
+    support1: 265.0,
+    support2: 255.0,
+    notes: "Too expensive for 30K wheel - swing only",
+  },
+  {
+    ticker: "CMG",
+    name: "Chipotle",
+    price: 31.45,
+    tier: "T2",
+    capitalPer100: 3145.0,
+    pctOf30k: "10%",
+    divYield: "0%",
+    sector: "Consumer Disc",
+    cspStrike: "$30-31",
+    premium: "$40-70",
+    iv: "30-40%",
+    regimes: "CAUT+, AGG",
+    contractsPer30k: 9.0,
+    support1: 30.0,
+    support2: 28.5,
+    notes: "Post-split, best unit economics",
+  },
+  {
+    ticker: "PLTR",
+    name: "Palantir",
+    price: 175.0,
+    tier: "T3",
+    capitalPer100: 17500.0,
+    pctOf30k: "58%",
+    divYield: "0%",
+    sector: "AI/Defense",
+    cspStrike: null,
+    premium: null,
+    iv: null,
+    regimes: "SWING ONLY",
+    contractsPer30k: 0.0,
+    support1: 165.0,
+    support2: 155.0,
+    notes: "Too expensive + Tier 3 = swing only",
+  },
+  {
+    ticker: "SQ",
+    name: "Block/Square",
+    price: 75.0,
+    tier: "T3",
+    capitalPer100: 7500.0,
+    pctOf30k: "25%",
+    divYield: "0%",
+    sector: "Fintech",
+    cspStrike: null,
+    premium: null,
+    iv: null,
+    regimes: "AGG ONLY",
+    contractsPer30k: 0.0,
+    support1: 72.0,
+    support2: 68.0,
+    notes: "Regulatory overhang - downgraded",
+  },
+];
+
+const SWING_WATCHLIST = [
+  {
+    ticker: "AAPL",
+    name: "Apple",
+    price: 274.0,
+    tier: "T1",
+    positionSize: "10-20 shares",
+    capitalReq: "$2,740-5,480",
+    pctOf30k: "9-18%",
+    sector: "Tech",
+    entrySignal: "Pullback 8-12%",
+    targetPct: "+12-15%",
+    stopPct: "7%",
+    regimes: "HIGH, MED, AGG",
+    support1: 265.0,
+    support2: 255.0,
+    notes: "Too expensive for wheel",
+  },
+  {
+    ticker: "MSFT",
+    name: "Microsoft",
+    price: 510.0,
+    tier: "T1",
+    positionSize: "10-20 shares",
+    capitalReq: "$5,100-10,200",
+    pctOf30k: "17-34%",
+    sector: "Tech",
+    entrySignal: "Pullback 8-10%",
+    targetPct: "+10-12%",
+    stopPct: "7%",
+    regimes: "HIGH, MED, AGG",
+    support1: 490.0,
+    support2: 470.0,
+    notes: "AAA credit, AI leader",
+  },
+  {
+    ticker: "JPM",
+    name: "JPMorgan Chase",
+    price: 305.0,
+    tier: "T1",
+    positionSize: "10-20 shares",
+    capitalReq: "$3,050-6,100",
+    pctOf30k: "10-20%",
+    sector: "Financials",
+    entrySignal: "Banking fear",
+    targetPct: "+12-15%",
+    stopPct: "7-8%",
+    regimes: "HIGH, AGG",
+    support1: 295.0,
+    support2: 285.0,
+    notes: "Fortress bank",
+  },
+  {
+    ticker: "GOOGL",
+    name: "Alphabet",
+    price: 277.0,
+    tier: "T1",
+    positionSize: "15-25 shares",
+    capitalReq: "$4,155-6,925",
+    pctOf30k: "14-23%",
+    sector: "Tech",
+    entrySignal: "Pullback 10-12%",
+    targetPct: "+12-18%",
+    stopPct: "7%",
+    regimes: "HIGH, MED, AGG",
+    support1: 265.0,
+    support2: 255.0,
+    notes: "Search dominance",
+  },
+  {
+    ticker: "MRVL",
+    name: "Marvell Technology",
+    price: 86.0,
+    tier: "T2",
+    positionSize: "20-35 shares",
+    capitalReq: "$1,720-3,010",
+    pctOf30k: "6-10%",
+    sector: "Semiconductors",
+    entrySignal: "Sector pullback",
+    targetPct: "+15-20%",
+    stopPct: "8%",
+    regimes: "CAUT+, AGG",
+    support1: 82.0,
+    support2: 78.0,
+    notes: "AI infrastructure, custom chips",
+  },
+  {
+    ticker: "BAC",
+    name: "Bank of America",
+    price: 53.0,
+    tier: "T2",
+    positionSize: "50-75 shares",
+    capitalReq: "$2,650-3,975",
+    pctOf30k: "9-13%",
+    sector: "Financials",
+    entrySignal: "Banking sector fear",
+    targetPct: "+15-20%",
+    stopPct: "7-8%",
+    regimes: "HIGH, AGG",
+    support1: 51.0,
+    support2: 49.0,
+    notes: "Rate sensitive",
+  },
+  {
+    ticker: "CMG",
+    name: "Chipotle",
+    price: 31.45,
+    tier: "T2",
+    positionSize: "50-75 shares",
+    capitalReq: "$1,573-2,359",
+    pctOf30k: "5-8%",
+    sector: "Consumer Disc",
+    entrySignal: "Restaurant weakness",
+    targetPct: "+15-20%",
+    stopPct: "8%",
+    regimes: "HIGH, MED, AGG",
+    support1: 30.0,
+    support2: 28.5,
+    notes: "Post-split, best unit econ",
+  },
+  {
+    ticker: "COIN",
+    name: "Coinbase",
+    price: 309.0,
+    tier: "T2",
+    positionSize: "5-10 shares",
+    capitalReq: "$1,545-3,090",
+    pctOf30k: "5-10%",
+    sector: "Crypto",
+    entrySignal: "BTC bull + AGG",
+    targetPct: "+25-40%",
+    stopPct: "10%",
+    regimes: "AGG ONLY",
+    support1: 295.0,
+    support2: 275.0,
+    notes: "UPGRADED - SEC lawsuit dismissed",
+  },
+  {
+    ticker: "ARM",
+    name: "Arm Holdings",
+    price: 110.0,
+    tier: "T2",
+    positionSize: "15-25 shares",
+    capitalReq: "$1,650-2,750",
+    pctOf30k: "6-9%",
+    sector: "Semiconductors",
+    entrySignal: "Tech pullback",
+    targetPct: "+15-25%",
+    stopPct: "8%",
+    regimes: "HIGH, AGG",
+    support1: 108.0,
+    support2: 100.0,
+    notes: "UPGRADED - Armv9 adoption",
+  },
+  {
+    ticker: "SPOT",
+    name: "Spotify",
+    price: 485.0,
+    tier: "T2",
+    positionSize: "5-10 shares",
+    capitalReq: "$2,425-4,850",
+    pctOf30k: "8-16%",
+    sector: "Media",
+    entrySignal: "Streaming weakness",
+    targetPct: "+15-20%",
+    stopPct: "8%",
+    regimes: "HIGH, MED, AGG",
+    support1: 465.0,
+    support2: 445.0,
+    notes: "UPGRADED - First profit ever",
+  },
+  {
+    ticker: "NVDA",
+    name: "NVIDIA",
+    price: 145.0,
+    tier: "T2",
+    positionSize: "15-25 shares",
+    capitalReq: "$2,175-3,625",
+    pctOf30k: "7-12%",
+    sector: "Semiconductors",
+    entrySignal: "AI sector pullback",
+    targetPct: "+20-30%",
+    stopPct: "8%",
+    regimes: "AGG ONLY",
+    support1: 140.0,
+    support2: 130.0,
+    notes: "AI GPU leader, high beta",
+  },
+  {
+    ticker: "V",
+    name: "Visa",
+    price: 320.0,
+    tier: "T2",
+    positionSize: "10-15 shares",
+    capitalReq: "$3,200-4,800",
+    pctOf30k: "11-16%",
+    sector: "Financials",
+    entrySignal: "Payments sector dip",
+    targetPct: "+12-15%",
+    stopPct: "7%",
+    regimes: "HIGH, MED",
+    support1: 310.0,
+    support2: 300.0,
+    notes: "Defensive growth",
+  },
+  {
+    ticker: "SPY",
+    name: "S&P 500 ETF",
+    price: 610.0,
+    tier: "T2",
+    positionSize: "5-10 shares",
+    capitalReq: "$3,050-6,100",
+    pctOf30k: "10-20%",
+    sector: "Index ETF",
+    entrySignal: "Market pullback 5-8%",
+    targetPct: "+10-12%",
+    stopPct: "5%",
+    regimes: "HIGH, MED",
+    support1: 600.0,
+    support2: 580.0,
+    notes: "Market exposure",
+  },
+  {
+    ticker: "QQQ",
+    name: "Nasdaq 100 ETF",
+    price: 525.0,
+    tier: "T2",
+    positionSize: "6-12 shares",
+    capitalReq: "$3,150-6,300",
+    pctOf30k: "11-21%",
+    sector: "Tech Index",
+    entrySignal: "Tech pullback 8-10%",
+    targetPct: "+12-15%",
+    stopPct: "6%",
+    regimes: "HIGH, AGG",
+    support1: 510.0,
+    support2: 490.0,
+    notes: "Tech exposure",
+  },
+  {
+    ticker: "PLTR",
+    name: "Palantir",
+    price: 175.0,
+    tier: "T3",
+    positionSize: "10-20 shares",
+    capitalReq: "$1,750-3,500",
+    pctOf30k: "6-12%",
+    sector: "AI/Defense",
+    entrySignal: "-15-20% + AGG",
+    targetPct: "+20-30%",
+    stopPct: "7-8%",
+    regimes: "AGG ONLY",
+    support1: 165.0,
+    support2: 155.0,
+    notes: "High risk, AI/gov contracts",
+  },
+  {
+    ticker: "SQ",
+    name: "Block/Square",
+    price: 75.0,
+    tier: "T3",
+    positionSize: "20-30 shares",
+    capitalReq: "$1,500-2,250",
+    pctOf30k: "5-8%",
+    sector: "Fintech",
+    entrySignal: "AGG + regulatory clarity",
+    targetPct: "+20-25%",
+    stopPct: "8%",
+    regimes: "AGG ONLY",
+    support1: 72.0,
+    support2: 68.0,
+    notes: "DOWNGRADED - regulatory risk",
+  },
+  {
+    ticker: "RBLX",
+    name: "Roblox",
+    price: 55.0,
+    tier: "T3",
+    positionSize: "10-20 shares",
+    capitalReq: "$550-1,100",
+    pctOf30k: "2-4%",
+    sector: "Gaming",
+    entrySignal: "Lawsuit resolution",
+    targetPct: "+25-30%",
+    stopPct: "10%",
+    regimes: "AGG ONLY",
+    support1: 52.0,
+    support2: 48.0,
+    notes: "DOWNGRADED - legal issues",
+  },
+  {
+    ticker: "MU",
+    name: "Micron Technology",
+    price: 95.0,
+    tier: "T3",
+    positionSize: "20-30 shares",
+    capitalReq: "$1,900-2,850",
+    pctOf30k: "6-10%",
+    sector: "Semiconductors",
+    entrySignal: "Memory cycle bottom",
+    targetPct: "+25-35%",
+    stopPct: "9%",
+    regimes: "AGG ONLY",
+    support1: 90.0,
+    support2: 85.0,
+    notes: "Cyclical memory",
+  },
+];
+
+function ensureWatchlistsSeeded(){
+  try{
+    if(!Array.isArray(appData.wheelWatchlist) || !appData.wheelWatchlist.length){
+      appData.wheelWatchlist = JSON.parse(JSON.stringify(WHEEL_WATCHLIST));
+    }
+    if(!Array.isArray(appData.swingWatchlist) || !appData.swingWatchlist.length){
+      appData.swingWatchlist = JSON.parse(JSON.stringify(SWING_WATCHLIST));
+    }
+  }catch(e){
+    console.warn("ensureWatchlistsSeeded failed", e);
+  }
+}
+
+
+
+
+
+function saveToLocalStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+function loadFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    if(parsed && typeof parsed==="object"){
+      appData = Object.assign(appData, parsed);
+      window.appData = appData;
+    }
+  }catch(e){ console.warn("load failed", e); }
+}
+function fmtYMD(dt){ return dt?dt.toISOString().slice(0,10):""; }
+function parseDateAsLocal(isoOrYmd){
+  if(!isoOrYmd) return null;
+  const s = String(isoOrYmd).slice(0,10);
+  const parts = s.split("-").map(Number);
+  if(parts.length!==3 || !parts[0]||!parts[1]||!parts[2]) return null;
+  return new Date(parts[0],parts[1]-1,parts[2]);
+}
+function daysBetween(a,b){ return (!a||!b)?0:Math.ceil((b-a)/(1000*60*60*24)); }
+
+function switchTab(id,ev){
+  document.querySelectorAll(".tab-content").forEach(s=>s.style.display="none");
+  document.getElementById(id).style.display="block";
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  const t = ev?.currentTarget;
+  if(t) t.classList.add("active");
+  else{
+    const btn=[...document.querySelectorAll(".tab-btn")].find(b=>(b.getAttribute("onclick")||"").includes(id));
+    if(btn) btn.classList.add("active");
+  }
+  if(id==="opportunities") renderPipeline();
+  if(id==="trades"){renderOpenTradesTable();renderClosedTradesArchive();}
+  if(id==="analytics") renderAnalytics();
+  if(id==="settings") renderPlaybooks();
+}
+
+function setTheme(theme){
+  document.body.setAttribute("data-theme", theme);
+  appData.settings.theme = theme;
+  saveToLocalStorage();
+}
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  const cur=document.body.getAttribute("data-theme")||"light";
+  setTheme(cur==="dark"?"light":"dark");
+});
+
+function renderRegime(){
+  const r=appData.regime;
+  const confPct=Math.round((Number(r.confidence)||0)*100);
+  const cls = confPct>=60?"good":confPct>=45?"warn":"bad";
+  const vixValue = Number(r.vix||0).toFixed(2);
+  
+  // Fear & Greed display
+  const fg = r.fearGreed || {};
+  const fgScore = fg.score ? Math.round(fg.score) : '--';
+  const fgRating = fg.rating || '';
+  const fgClass = fgRating.includes('extreme fear') ? 'bad' : 
+                  fgRating.includes('fear') ? 'warn' :
+                  fgRating.includes('greed') ? 'good' :
+                  fgRating.includes('extreme greed') ? 'good' : '';
+  
+  document.getElementById("regimeBox").innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+      <div class="pill ${cls}"><i class="fa-solid fa-signal"></i> ${r.label}</div>
+      <div class="grid cols-2" style="gap:0.4rem;">
+        <div class="kpi">
+          <div class="label">VIX <button class="btn btn-sm" style="padding:0.1rem 0.3rem;font-size:0.65rem;margin-left:0.3rem;" onclick="refreshVIX()" title="Refresh VIX"><i class="fa-solid fa-rotate"></i></button></div>
+          <div class="value"><a href="https://finance.yahoo.com/quote/%5EVIX/" target="_blank" class="ticker-link">${vixValue}</a></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Fear/Greed <button class="btn btn-sm" style="padding:0.1rem 0.3rem;font-size:0.65rem;margin-left:0.3rem;" onclick="refreshFearGreed()" title="Refresh F&G"><i class="fa-solid fa-rotate"></i></button></div>
+          <div class="value ${fgClass}"><a href="https://www.cnn.com/markets/fear-and-greed" target="_blank" class="ticker-link">${fgScore}</a> <span style="font-size:0.7rem;text-transform:capitalize;">${fgRating}</span></div>
+        </div>
+      </div>
+      <div class="grid cols-2" style="gap:0.4rem;">
+        <div class="kpi"><div class="label">Confidence</div><div class="value">${confPct}%</div></div>
+        <div class="kpi"><div class="label">Cash Mandate</div><div class="value">${r.cashMin}-${r.cashMax}%</div></div>
+      </div>
+      <div class="td-muted" style="font-size:0.83rem;">${r.notes||""}</div>
+    </div>`;
+}
+function estimateCashPct(){
+  const used = appData.trades.reduce((sum,t)=>sum+Number(t.capital||t.investment||0),0);
+  const midTarget = (Number(appData.regime.cashMin)+Number(appData.regime.cashMax))/2/100 || 0.45;
+  const account = used/(1-midTarget) || 1;
+  const cash = Math.max(0, account-used);
+  return (cash/account)*100;
+}
+function renderCashBox(){
+  const pct = estimateCashPct();
+  const r=appData.regime;
+  const cls = pct<r.cashMin?"bad":pct>r.cashMax?"warn":"good";
+  document.getElementById("cashBox").innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+      <div class="pill ${cls}"><i class="fa-solid fa-vault"></i> Cash ${pct.toFixed(1)}%</div>
+      <div class="td-muted" style="font-size:0.82rem;">Approximation based on open-trade capital; adjust mentally for full account.</div>
+      <div class="grid cols-2">
+        <div class="kpi"><div class="label">Open Trades</div><div class="value">${appData.trades.length}</div></div>
+        <div class="kpi"><div class="label">Closed Trades</div><div class="value">${appData.tradeHistory.length}</div></div>
+      </div>
+    </div>`;
+}
+
+function buildPriorityQueue(){
+  const r=appData.regime;
+  const now=new Date();
+  return appData.trades.map(t=>{
+    const exp=parseDateAsLocal(t.expDate);
+    const dte=exp?daysBetween(now,exp):null;
+    const earnings=parseDateAsLocal(t.earningsDate||t.earnings);
+    const earnIn=earnings?daysBetween(now,earnings):null;
+    const unrealR=Number(t.unrealR||0);
+    let score=0;const reasons=[];
+    if(dte!==null){
+      if(dte<=7){score+=40;reasons.push(`${dte} DTE`);}
+      else if(dte<=14){score+=25;reasons.push(`${dte} DTE`);}
+    }
+    if(unrealR<=-0.7){score+=35;reasons.push(`Unreal ${unrealR.toFixed(2)}R`);}
+    if(unrealR>=1.5){score+=20;reasons.push(`Unreal +${unrealR.toFixed(2)}R`);}
+    if(earnIn!==null && earnIn<=5){score+=30;reasons.push(`Earnings in ${earnIn}d`);}
+    if(r.confidence<0.45 && (t.type==="Swing"||t.beta==="high")){
+      score+=15;reasons.push("Low-conf regime");
+    }
+    return {trade:t,score,reasons};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
+}
+function renderPriorityQueue(){
+  const items=buildPriorityQueue();
+  const box=document.getElementById("priorityQueue");
+  if(!items.length){ box.innerHTML=`<div class="empty">No urgent items. Book is calm.</div>`; return; }
+  box.innerHTML = items.map(x=>{
+    const t=x.trade;const reasons=x.reasons.join(" • ");
+    return `
+      <div class="op-card">
+        <div class="op-head">
+          <div>
+            <div class="op-ticker"><a href="https://finance.yahoo.com/quote/${t.ticker}" target="_blank" class="ticker-link">${t.ticker}</a> <span class="td-muted" style="font-weight:600;">${t.type}</span></div>
+            <div class="op-meta">${reasons}</div>
+          </div>
+          <div class="op-actions">
+            <button class="btn btn-sm" onclick="editActiveTrade(${t.id})"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="closeTrade(${t.id})"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+function rebuildPriorityQueue(){renderPriorityQueue();}
+
+let tradeFormMode="add";
+let editingTradeId=null;
+let closingTradeId=null;
+function updateTradeTypeFields(){
+  const type=(document.getElementById("tradeType")?.value)||"CSP";
+  const swing=document.getElementById("swingFields");
+  const wheel=document.getElementById("wheelFields");
+  if(!swing||!wheel) return;
+  if(type==="Swing"){
+    swing.style.display="grid";
+    wheel.style.display="none";
+  }else{
+    swing.style.display="none";
+    wheel.style.display="grid";
+  }
+}
+function openAddTradeModal(type){
+  tradeFormMode="add";editingTradeId=null;
+  const today=fmtYMD(new Date());
+  document.getElementById("tradeModalTitle").textContent="New Trade";
+  document.getElementById("tradeTicker").value="";
+  const typeSel=document.getElementById("tradeType");
+  typeSel.value=type||"CSP";
+  document.getElementById("tradeEntryDate").value=today;
+  document.getElementById("tradeExpDate").value="";
+  document.getElementById("tradeEntry").value="";
+  document.getElementById("tradeShares").value="";
+  document.getElementById("tradeStop").value="";
+  document.getElementById("tradeTarget").value="";
+  document.getElementById("tradeStrike").value="";
+  document.getElementById("tradePremium").value="";
+  document.getElementById("tradeQuantity").value="";
+  document.getElementById("tradeNotes").value="";
+  const oneRInput=document.getElementById("tradeOneR");
+  if((type||"").toLowerCase()==="swing"){
+    oneRInput.value=appData.settings.defaultOneRSwing ?? "";
+  }else{
+    oneRInput.value=appData.settings.defaultOneRWheel ?? "";
+  }
+  updateTradeTypeFields();
+  document.getElementById("tradeModalBackdrop").style.display="flex";
+}
+function closeTradeModal(){
+  document.getElementById("tradeModalBackdrop").style.display="none";
+}
+function saveTradeFromModal(){
+  const ticker=(document.getElementById("tradeTicker").value||"").trim().toUpperCase();
+  if(!ticker){showToast("Ticker is required", "warning");return;}
+  const type=document.getElementById("tradeType").value;
+  const entryDate=document.getElementById("tradeEntryDate").value || fmtYMD(new Date());
+  const expDate=document.getElementById("tradeExpDate").value || "";
+  const notes=document.getElementById("tradeNotes").value || "";
+  let oneRVal=document.getElementById("tradeOneR").value;
+  let oneR=oneRVal!==""?parseFloat(oneRVal):null;
+  if(isNaN(oneR)) oneR=null;
+
+  let trade;
+  if(type==="Swing"){
+    const entry=parseFloat(document.getElementById("tradeEntry").value||"");
+    const shares=parseInt(document.getElementById("tradeShares").value||"");
+    const stop=parseFloat(document.getElementById("tradeStop").value||"");
+    const target=parseFloat(document.getElementById("tradeTarget").value||"");
+    if(!oneR && entry && stop && shares){
+      oneR=Math.abs(entry-stop)*shares;
+    }
+    trade={type:"Swing",ticker,entry,shares,stop,target,entryDate,
+      investment:(entry||0)*(shares||0),oneR,notes};
+    if(oneR) appData.settings.defaultOneRSwing = oneR;
+  }else{
+    const strike=parseFloat(document.getElementById("tradeStrike").value||"");
+    const premium=parseFloat(document.getElementById("tradePremium").value||"");
+    const quantity=parseInt(document.getElementById("tradeQuantity").value||"");
+    trade={type,ticker,strike,premium,quantity,expDate,entryDate,
+      capital:(strike||0)*(quantity||0)*100,oneR,notes};
+    if(oneR) appData.settings.defaultOneRWheel = oneR;
+  }
+
+  if(tradeFormMode==="add"){
+    trade.id=Date.now();
+    trade.entryRegime=appData.regime.label;
+    trade.entryConfidence=appData.regime.confidence;
+    appData.trades.push(trade);
+  }else if(tradeFormMode==="edit" && editingTradeId!=null){
+    const existing=appData.trades.find(t=>t.id===editingTradeId);
+    if(existing){ Object.assign(existing,trade); }
+  }
+  saveToLocalStorage();
+  closeTradeModal();
+  renderAll();
+}
+function editActiveTrade(id){
+  const t=appData.trades.find(tr=>tr.id===id);
+  if(!t) return;
+  tradeFormMode="edit";editingTradeId=id;
+  document.getElementById("tradeModalTitle").textContent="Edit Trade";
+  document.getElementById("tradeTicker").value=t.ticker||"";
+  const typeSel=document.getElementById("tradeType");
+  typeSel.value=t.type||"CSP";
+  document.getElementById("tradeEntryDate").value=t.entryDate?String(t.entryDate).slice(0,10):"";
+  document.getElementById("tradeExpDate").value=t.expDate?String(t.expDate).slice(0,10):"";
+  document.getElementById("tradeNotes").value=t.notes||"";
+  document.getElementById("tradeOneR").value=t.oneR!=null?t.oneR:"";
+  document.getElementById("tradeEntry").value="";
+  document.getElementById("tradeShares").value="";
+  document.getElementById("tradeStop").value="";
+  document.getElementById("tradeTarget").value="";
+  document.getElementById("tradeStrike").value="";
+  document.getElementById("tradePremium").value="";
+  document.getElementById("tradeQuantity").value="";
+  if(t.type==="Swing"){
+    document.getElementById("tradeEntry").value=t.entry ?? "";
+    document.getElementById("tradeShares").value=t.shares ?? "";
+    document.getElementById("tradeStop").value=t.stop ?? "";
+    document.getElementById("tradeTarget").value=t.target ?? "";
+  }else{
+    document.getElementById("tradeStrike").value=t.strike ?? "";
+    document.getElementById("tradePremium").value=t.premium ?? "";
+    document.getElementById("tradeQuantity").value=t.quantity ?? "";
+  }
+  updateTradeTypeFields();
+  document.getElementById("tradeModalBackdrop").style.display="flex";
+}
+
+function closeTrade(id){
+  const t=appData.trades.find(tr=>tr.id===id);
+  if(!t) return;
+  closingTradeId=id;
+  const today=fmtYMD(new Date());
+  document.getElementById("closeDate").value=t.closeDate?String(t.closeDate).slice(0,10):today;
+  document.getElementById("closePL").value=t.pl!=null?t.pl:0;
+  document.getElementById("closeOneR").value=t.oneR!=null?t.oneR:"";
+  document.getElementById("closeRMultiple").value=t.rMultiple!=null?t.rMultiple:"";
+  document.getElementById("closeNotes").value=t.notes||"";
+  document.getElementById("closeModalBackdrop").style.display="flex";
+}
+function closeCloseModal(){document.getElementById("closeModalBackdrop").style.display="none";}
+function saveCloseTradeFromModal(){
+  if(closingTradeId==null){closeCloseModal();return;}
+  const idx=appData.trades.findIndex(t=>t.id===closingTradeId);
+  if(idx===-1){closeCloseModal();return;}
+  const t=appData.trades[idx];
+  const closeDateStr=document.getElementById("closeDate").value||fmtYMD(new Date());
+  const closeDt=parseDateAsLocal(closeDateStr)||new Date();
+  const plVal=parseFloat(document.getElementById("closePL").value||"0")||0;
+  let oneR=document.getElementById("closeOneR").value;
+  oneR=oneR!==""?parseFloat(oneR):(t.oneR||null);
+  if(isNaN(oneR)) oneR=null;
+  let rInput=document.getElementById("closeRMultiple").value;
+  let computedR=null;
+  if(oneR && !isNaN(oneR) && oneR!==0){ computedR=plVal/oneR; }
+  let rMultiple=null;
+  if(rInput!==""){
+    const v=parseFloat(rInput);
+    rMultiple=!isNaN(v)?v:computedR;
+  }else{
+    rMultiple=computedR;
+  }
+  const notes=document.getElementById("closeNotes").value || t.notes || "";
+  const closed=Object.assign({},t,{
+    closeDate:closeDt.toISOString(),
+    pl:plVal,
+    oneR:oneR,
+    rMultiple:rMultiple,
+    holdingDays:t.entryDate?daysBetween(parseDateAsLocal(t.entryDate),closeDt):null,
+    exitRegime:appData.regime.label,
+    exitConfidence:appData.regime.confidence,
+    notes:notes
+  });
+  appData.tradeHistory.push(closed);
+  appData.trades.splice(idx,1);
+  closingTradeId=null;
+  saveToLocalStorage();
+  closeCloseModal();
+  renderAll();
+}
+
+
+function renderOpenTradesTable(){
+  const trades=appData.trades;
+  const box=document.getElementById("openTradesTable");
+  if(!trades.length){
+    box.innerHTML=`<div class="empty">No open trades.</div>`;
+    return;
+  }
+  const rows=trades.map(t=>{
+    const cap=Number(t.capital||t.investment||0);
+    const exp=t.expDate||"";
+    const dte=exp?daysBetween(new Date(),parseDateAsLocal(exp)):"";
+    const current = t.currentPrice ? ("$"+Number(t.currentPrice).toFixed(2)) : "-";
+    let refVal = "";
+    if(t.type==="Swing"){
+      refVal = t.target ? ("$"+Number(t.target).toFixed(2)) : "";
+    }else{
+      refVal = t.strike ? ("$"+Number(t.strike).toFixed(2)) : "";
+    }
+    const premiumDisplay = (t.type==="Swing")
+      ? "—"
+      : (t.premium ? ("$"+Number(t.premium).toFixed(2)) : "");
+    return `
+      <tr data-trade-row="${t.id}">
+        <td><a href="https://finance.yahoo.com/quote/${t.ticker}" target="_blank" class="ticker-link">${t.ticker}</a></td>
+        <td class="td-muted">${t.type}</td>
+        <td>${current}</td>
+        <td>${refVal}</td>
+        <td>${t.entryDate||""}</td>
+        <td>${exp}</td>
+        <td>${dte}</td>
+        <td>${premiumDisplay}</td>
+        <td>${t.oneR?("$"+Number(t.oneR).toFixed(0)):""}</td>
+        <td>${cap?("$"+cap.toFixed(0)):""}</td>
+        <td class="td-muted">${t.notes||""}</td>
+        <td>
+          <button class="btn btn-sm" onclick="editActiveTrade(${t.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="closeTrade(${t.id})"><i class="fa-solid fa-xmark"></i></button>
+        </td>
+      </tr>`;
+  }).join("");
+  box.innerHTML=`
+    <div style="max-height:720px;overflow:auto;">
+      <table class="trades-table trades-table-lg">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Type</th>
+            <th>Current</th>
+            <th>Target/Strike</th>
+            <th>Entry</th>
+            <th>Exp</th>
+            <th>DTE</th>
+            <th>Premium</th>
+            <th>1R</th>
+            <th>Capital</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+function renderActiveTradesTable(){
+  document.getElementById("activeTradesTable").innerHTML =
+    document.getElementById("openTradesTable").innerHTML || `<div class="empty">No active trades.</div>`;
+}
+
+function renderClosedTradesArchive(){
+  const box=document.getElementById("closedTradesTableBox");
+  const trades=appData.tradeHistory||[];
+  if(!trades.length){box.innerHTML=`<div class="empty">No closed trades yet.</div>`;return;}
+  const rows=trades.map((t,i)=>{
+    const pl=Number(t.pl||0);
+    const cap=Number(t.capital||t.investment||0);
+    const closeStr=t.closeDate?String(t.closeDate).slice(0,10):"";
+    const tid=t.id||i;
+    const rMult=(!isNaN(Number(t.rMultiple)))?Number(t.rMultiple).toFixed(2):"";
+    return `
+      <tr>
+        <td>${t.entryDate||""}</td>
+        <td>${closeStr}</td>
+        <td><a href="https://finance.yahoo.com/quote/${t.ticker||''}" target="_blank" class="ticker-link">${t.ticker||""}</a></td>
+        <td class="td-muted">${t.type||""}</td>
+        <td>${t.oneR?("$"+Number(t.oneR).toFixed(0)):""}</td>
+        <td>${cap?("$"+cap.toFixed(0)):""}</td>
+        <td class="${pl>=0?"pl-pos":"pl-neg"}">${pl>=0?"+":""}$${pl.toFixed(2)}</td>
+        <td>${rMult}</td>
+        <td>${t.holdingDays||""}</td>
+        <td class="td-muted">${t.notes||""}</td>
+        <td>
+          <button class="btn btn-sm" onclick="editClosedTrade('${tid}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteClosedTrade('${tid}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+  }).join("");
+  box.innerHTML=`
+    <div style="max-height:720px;overflow:auto;">
+    <table id="closedTradesTable" class="trades-table trades-table-lg">
+      <thead><tr>
+        <th>Entry</th><th>Close</th><th>Ticker</th><th>Type</th><th>1R</th><th>Capital</th><th>P/L</th><th>R</th><th>Days</th><th>Notes</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+function findClosedTradeIndex(id){
+  return (appData.tradeHistory||[]).findIndex(t=>String(t.id)===String(id));
+}
+function editClosedTrade(id){
+  const idx=findClosedTradeIndex(id);
+  if(idx===-1) return;
+  const t=appData.tradeHistory[idx];
+  const curClose=t.closeDate?String(t.closeDate).slice(0,10):"";
+  const newClose=prompt("Close date (YYYY-MM-DD):",curClose) ?? curClose;
+  if(newClose && newClose!==curClose){
+    const dt=parseDateAsLocal(newClose);if(dt) t.closeDate=dt.toISOString();
+  }
+  const curPL=Number(t.pl||0);
+  const newPLStr=prompt("P/L ($):",curPL);
+  if(newPLStr!==null && newPLStr!==""){
+    const v=parseFloat(newPLStr);if(!isNaN(v)) t.pl=v;
+  }
+  const curOneR=Number(t.oneR||0)||"";
+  const newOneRStr=prompt("1R ($):",curOneR);
+  if(newOneRStr!==null && newOneRStr!==""){
+    const v=parseFloat(newOneRStr);if(!isNaN(v)) t.oneR=v;
+  }
+  if(t.oneR && !isNaN(Number(t.oneR))){t.rMultiple=Number(t.pl||0)/Number(t.oneR);}
+  const newNotes=prompt("Notes:",t.notes||"");
+  if(newNotes!==null) t.notes=newNotes;
+  saveToLocalStorage();
+  renderAll();
+}
+function deleteClosedTrade(id){
+  const idx=findClosedTradeIndex(id);
+  if(idx===-1) return;
+  if(!confirm("Delete this closed trade?")) return;
+  appData.tradeHistory.splice(idx,1);
+  saveToLocalStorage();
+  renderAll();
+}
+
+const STAGES=[
+  {key:"backlog",label:"Backlog",icon:"fa-inbox"},
+  {key:"allowed",label:"Allowed This Week",icon:"fa-shield-halved"},
+  {key:"deploy",label:"Deploy List",icon:"fa-rocket"},
+  {key:"triggered",label:"Triggered",icon:"fa-flag-checkered"}
+];
+let editingOpportunityId=null;
+
+function renderPipeline(){
+  const container=document.getElementById("pipelineStages");
+  const html=STAGES.map(s=>{
+    const items=(appData.opportunities||[]).filter(o=>o.stage===s.key);
+    const list=items.length?items.map(renderOpportunityCard).join(""):`<div class="empty">Empty</div>`;
+    return `
+      <div class="stage card">
+        <div class="card-header">
+          <div class="stage-title"><i class="fa-solid ${s.icon}"></i> ${s.label} <span class="td-muted">(${items.length})</span></div>
+        </div>
+        <div class="card-body stage-list">${list}</div>
+      </div>`;
+  }).join("");
+  container.innerHTML=html;
+}
+function renderOpportunityCard(o){
+  const tierClass=o.tier==="T1"?"t1":o.tier==="T2"?"t2":"t3";
+  const tags=(o.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(" ");
+  const strats=(o.strategies||[]).join(", ");
+  return `
+    <div class="op-card">
+      <div class="op-head">
+        <div>
+          <div class="op-ticker"><a href="https://finance.yahoo.com/quote/${o.ticker}" target="_blank" class="ticker-link">${o.ticker}</a> <span class="tag ${tierClass}">${o.tier||"T1"}</span></div>
+          <div class="op-meta">${strats || "—"} • ${o.regimeCompat||"any"}</div>
+        </div>
+        <div class="op-actions">
+          <button class="btn btn-sm" onclick="editOpportunity(${o.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteOpportunity(${o.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div style="font-size:0.8rem;">${o.trigger||o.setup||""}</div>
+      <div class="op-meta">Invalidation: ${o.invalidation||"—"}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.2rem;">${tags}</div>
+      <div class="op-actions">
+        ${o.stage!=="backlog"?`<button class="btn btn-sm" onclick="moveOpportunity(${o.id},-1)">← Back</button>`:""}
+        ${o.stage!=="triggered"?`<button class="btn btn-sm btn-success" onclick="moveOpportunity(${o.id},1)">Next →</button>`:""}
+        ${o.stage==="deploy"?`<button class="btn btn-sm btn-primary" onclick="promoteOpportunityToTrade(${o.id})"><i class="fa-solid fa-play"></i> Promote</button>`:""}
+      </div>
+    </div>`;
+}
+function moveOpportunity(id,dir){
+  const idx=appData.opportunities.findIndex(o=>o.id===id);
+  if(idx===-1) return;
+  const cur=appData.opportunities[idx];
+  const sIdx=STAGES.findIndex(s=>s.key===cur.stage);
+  const nIdx=Math.max(0,Math.min(STAGES.length-1,sIdx+dir));
+  cur.stage=STAGES[nIdx].key;
+  saveToLocalStorage();
+  renderPipeline();
+}
+function applyRegimeGate(){
+  const conf=Number(appData.regime.confidence||0);
+  (appData.opportunities||[]).forEach(o=>{
+    const compat=o.regimeCompat||"any";
+    const ok=compat==="any" ||
+      (compat==="high" && conf>=0.6) ||
+      (compat==="med" && conf>=0.45) ||
+      (compat==="low" && conf<0.45);
+    o.gatedOut=!ok;
+    if(!ok && o.stage!=="backlog") o.stage="backlog";
+  });
+  saveToLocalStorage();
+  renderPipeline();
+}
+function openOpportunityModal(op){
+  editingOpportunityId=op?.id ?? null;
+  document.getElementById("opModalTitle").textContent = editingOpportunityId?"Edit Opportunity":"New Opportunity";
+  document.getElementById("opTicker").value=op?.ticker||"";
+  document.getElementById("opTier").value=op?.tier||"T1";
+  const sel=document.getElementById("opStrategies");
+  [...sel.options].forEach(opt=>{opt.selected=(op?.strategies||[]).includes(opt.value);});
+  document.getElementById("opStage").value=op?.stage||"backlog";
+  document.getElementById("opSetup").value=op?.setup||"";
+  document.getElementById("opTrigger").value=op?.trigger||"";
+  document.getElementById("opInvalidation").value=op?.invalidation||"";
+  document.getElementById("opRegime").value=op?.regimeCompat||"any";
+  document.getElementById("opEarnings").value=(op?.earningsDate||"").slice(0,10);
+  document.getElementById("opTags").value=(op?.tags||[]).join(", ");
+  document.getElementById("opNotes").value=op?.notes||"";
+  document.getElementById("opModalBackdrop").style.display="flex";
+}
+function closeOpportunityModal(){document.getElementById("opModalBackdrop").style.display="none";}
+function saveOpportunity(){
+  const ticker=document.getElementById("opTicker").value.trim().toUpperCase();
+  if(!ticker){showToast("Ticker is required", "warning");return;}
+  const tier=document.getElementById("opTier").value;
+  const sel=document.getElementById("opStrategies");
+  const strategies=[...sel.selectedOptions].map(o=>o.value);
+  const stage=document.getElementById("opStage").value;
+  const setup=document.getElementById("opSetup").value.trim();
+  const trigger=document.getElementById("opTrigger").value.trim();
+  const invalidation=document.getElementById("opInvalidation").value.trim();
+  const regimeCompat=document.getElementById("opRegime").value;
+  const earningsDate=document.getElementById("opEarnings").value;
+  const tags=document.getElementById("opTags").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const notes=document.getElementById("opNotes").value.trim();
+  if(editingOpportunityId){
+    const idx=appData.opportunities.findIndex(o=>o.id===editingOpportunityId);
+    if(idx!==-1){
+      Object.assign(appData.opportunities[idx],{ticker,tier,strategies,stage,setup,trigger,invalidation,regimeCompat,earningsDate,tags,notes});
+    }
+  }else{
+    appData.opportunities.push({id:Date.now(),ticker,tier,strategies,stage,setup,trigger,invalidation,regimeCompat,earningsDate,tags,notes});
+  }
+  saveToLocalStorage();
+  closeOpportunityModal();
+  renderPipeline();
+}
+function editOpportunity(id){
+  const op=appData.opportunities.find(o=>o.id===id);
+  if(op) openOpportunityModal(op);
+}
+function deleteOpportunity(id){
+  const idx=appData.opportunities.findIndex(o=>o.id===id);
+  if(idx===-1) return;
+  if(!confirm("Delete this opportunity?")) return;
+  appData.opportunities.splice(idx,1);
+  saveToLocalStorage();
+  renderPipeline();
+}
+function promoteOpportunityToTrade(id){
+  const op=appData.opportunities.find(o=>o.id===id);
+  if(!op){showToast("Opportunity not found", "error");return;}
+  const strats=op.strategies||[];
+  let choice=null;
+  if(strats.length===0) choice=prompt("Promote as Wheel or Swing?","Wheel");
+  else if(strats.length===1) choice=strats[0];
+  else choice=prompt("Promote as Wheel or Swing?",strats.includes("Wheel")?"Wheel":"Swing");
+  if(!choice) return;
+  const notesSeed=[op.setup,op.trigger,op.notes].filter(Boolean).join(" | ") || "";
+  const today=fmtYMD(new Date());
+  tradeFormMode="add";editingTradeId=null;
+  document.getElementById("tradeModalTitle").textContent="Promote to Trade";
+  document.getElementById("tradeTicker").value=op.ticker;
+  const typeSel=document.getElementById("tradeType");
+  typeSel.value=choice.toLowerCase().includes("swing")?"Swing":"CSP";
+  document.getElementById("tradeEntryDate").value=today;
+  document.getElementById("tradeExpDate").value="";
+  document.getElementById("tradeEntry").value="";
+  document.getElementById("tradeShares").value="";
+  document.getElementById("tradeStop").value="";
+  document.getElementById("tradeTarget").value="";
+  document.getElementById("tradeStrike").value="";
+  document.getElementById("tradePremium").value="";
+  document.getElementById("tradeQuantity").value="";
+  document.getElementById("tradeNotes").value=notesSeed;
+  const oneRInput=document.getElementById("tradeOneR");
+  if(typeSel.value==="Swing"){
+    oneRInput.value=appData.settings.defaultOneRSwing ?? "";
+  }else{
+    oneRInput.value=appData.settings.defaultOneRWheel ?? "";
+  }
+  updateTradeTypeFields();
+  document.getElementById("tradeModalBackdrop").style.display="flex";
+  op.stage="triggered";
+  op.triggeredAt=new Date().toISOString();
+  saveToLocalStorage();
+}
+
+function computeClosedRSeries(){
+  const closed=(appData.tradeHistory||[]).slice().filter(t=>t.closeDate).sort((a,b)=>new Date(a.closeDate)-new Date(b.closeDate));
+  let cum=0;const pts=[];
+  closed.forEach(t=>{
+    let r=null;
+    if(!isNaN(Number(t.rMultiple))) r=Number(t.rMultiple);
+    else if(!isNaN(Number(t.oneR)) && Number(t.oneR)!==0) r=Number(t.pl||0)/Number(t.oneR);
+    if(r===null) return;
+    cum+=r;
+    pts.push({date:t.closeDate,cumR:cum});
+  });
+  return pts;
+}
+function renderRCurve(){
+  const box=document.getElementById("rCurveBox");
+  if(!box) return;
+  const pts=computeClosedRSeries();
+  if(pts.length<2){box.innerHTML=`<div class="empty">Not enough closed trades with R to plot yet.</div>`;return;}
+  const W=520,H=220,pad=26;
+  const ys=pts.map(p=>p.cumR);
+  const minY=Math.min(...ys),maxY=Math.max(...ys);
+  const spanY=(maxY-minY)||1;
+  const scaleX=i=>pad+(i/(pts.length-1))*(W-2*pad);
+  const scaleY=y=>H-pad-((y-minY)/spanY)*(H-2*pad);
+  const line=pts.map((p,i)=>`${scaleX(i)},${scaleY(p.cumR)}`).join(" ");
+  const last=pts[pts.length-1];
+  const lastVal=last.cumR.toFixed(2);
+  box.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+      <div class="pill"><i class="fa-solid fa-wave-square"></i> Cumulative R</div>
+      <div class="pill ${last.cumR>=0?"good":"bad"}">Last: ${lastVal}R</div>
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="R equity curve">
+      <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/>
+      <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="var(--border)" stroke-width="1"/>
+      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="var(--border)" stroke-width="1"/>
+      <polyline fill="none" stroke="var(--accent)" stroke-width="2.3" points="${line}"/>
+      ${pts.map((p,i)=>`<circle cx="${scaleX(i)}" cy="${scaleY(p.cumR)}" r="2.4" fill="var(--accent)"><title>${String(p.date).slice(0,10)} • ${p.cumR.toFixed(2)}R</title></circle>`).join("")}
+      <text x="${pad}" y="${pad-8}" font-size="10" fill="var(--muted)">R</text>
+    </svg>`;
+}
+
+let heatmapState={month:(new Date()).getMonth(),year:(new Date()).getFullYear()};
+function getHeatmapTotalsForMonth(m,y){
+  const totals={};
+  (appData.tradeHistory||[]).forEach(t=>{
+    const dt=parseDateAsLocal(t.closeDate);
+    if(!dt || dt.getMonth()!==m || dt.getFullYear()!==y) return;
+    const k=fmtYMD(dt);
+    totals[k]=(totals[k]||0)+Number(t.pl||0);
+  });
+  return totals;
+}
+function renderCalendarHeatmap(){
+  const cont=document.getElementById("calendarHeatmap");
+  const label=document.getElementById("heatmapMonthLabel");
+  if(!cont||!label) return;
+  const {month,year}=heatmapState;
+  label.textContent=new Date(year,month,1).toLocaleString(undefined,{month:"short",year:"numeric"});
+  const first=new Date(year,month,1);
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const startIndex=(first.getDay()+6)%7;
+  const totals=getHeatmapTotalsForMonth(month,year);
+  const vals=Object.values(totals);
+  const maxAbs=vals.length?Math.max(...vals.map(v=>Math.abs(v))):1;
+  const cells=[];
+  for(let i=0;i<startIndex;i++) cells.push(`<div class="hm-cell hm-empty"></div>`);
+  for(let d=1;d<=daysInMonth;d++){
+    const dt=new Date(year,month,d);
+    const key=fmtYMD(dt);
+    const val=totals[key]||0;
+    const alpha=Math.min(0.9,Math.max(0.08,Math.abs(val)/maxAbs));
+    let bg="rgba(15,23,42,0.85)";
+    if(val>0) bg=`rgba(34,197,94,${alpha})`;
+    if(val<0) bg=`rgba(239,68,68,${alpha})`;
+    const title=`${key} • ${val>=0?"+":""}$${val.toFixed(2)}`;
+    cells.push(`<div class="hm-cell" style="background:${bg}" title="${title}"><div class="hm-cell-inner">${d}</div></div>`);
+  }
+  cont.innerHTML=cells.join("");
+}
+function prevHeatmapMonth(){
+  heatmapState.month--;if(heatmapState.month<0){heatmapState.month=11;heatmapState.year--;}
+  renderCalendarHeatmap();
+}
+function nextHeatmapMonth(){
+  heatmapState.month++;if(heatmapState.month>11){heatmapState.month=0;heatmapState.year++;}
+  renderCalendarHeatmap();
+}
+
+function openRegimeModal(){
+  const r=appData.regime;
+  document.getElementById("regimeLabel").value=r.label;
+  document.getElementById("regimeConfidence").value=r.confidence;
+  document.getElementById("regimeVix").value=r.vix;
+  document.getElementById("regimeCashMin").value=r.cashMin;
+  document.getElementById("regimeCashMax").value=r.cashMax;
+  document.getElementById("regimeNotes").value=r.notes||"";
+  document.getElementById("regimeModalBackdrop").style.display="flex";
+}
+function closeRegimeModal(){document.getElementById("regimeModalBackdrop").style.display="none";}
+function saveRegime(){
+  appData.regime.label=document.getElementById("regimeLabel").value;
+  appData.regime.confidence=Number(document.getElementById("regimeConfidence").value||0);
+  appData.regime.vix=Number(document.getElementById("regimeVix").value||0);
+  appData.regime.cashMin=Number(document.getElementById("regimeCashMin").value||0);
+  appData.regime.cashMax=Number(document.getElementById("regimeCashMax").value||0);
+  appData.regime.notes=document.getElementById("regimeNotes").value||"";
+  saveToLocalStorage();
+  closeRegimeModal();
+  renderAll();
+}
+
+function renderAnalytics(){
+  const closed=appData.tradeHistory||[];
+  if(!closed.length){
+    document.getElementById("expectancyBox").innerHTML=`<div class="empty">No closed trades yet.</div>`;
+    document.getElementById("regimeMatrixBox").innerHTML=`<div class="empty">No closed trades yet.</div>`;
+    return;
+  }
+  const byType={};
+  closed.forEach(t=>{
+    const k=t.type||"Other";
+    byType[k]=byType[k]||{n:0,w:0,sumR:0,sumPL:0};
+    const pl=Number(t.pl||0);
+    byType[k].n++;
+    if(pl>0) byType[k].w++;
+    byType[k].sumPL+=pl;
+    if(!isNaN(Number(t.rMultiple))) byType[k].sumR+=Number(t.rMultiple);
+  });
+  const rows=Object.entries(byType).map(([k,v])=>{
+    const winRate=v.n?(v.w/v.n*100):0;
+    const avgPL=v.n?(v.sumPL/v.n):0;
+    const avgR=v.n?(v.sumR/v.n):0;
+    const expectancy=avgR;
+    return `<tr>
+      <td><b>${k}</b></td><td>${v.n}</td><td>${winRate.toFixed(0)}%</td>
+      <td>${avgR.toFixed(2)}</td><td>${expectancy.toFixed(2)}</td>
+      <td class="${avgPL>=0?"pl-pos":"pl-neg"}">${avgPL>=0?"+":""}$${avgPL.toFixed(2)}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("expectancyBox").innerHTML=`
+    <div style="max-height:260px;overflow:auto;">
+    <table>
+      <thead><tr><th>Type</th><th>N</th><th>Win%</th><th>Avg R</th><th>Expectancy</th><th>Avg P/L</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+
+  const hasRegime=closed.some(t=>t.entryRegime);
+  if(!hasRegime){
+    document.getElementById("regimeMatrixBox").innerHTML=`<div class="empty">Matrix will populate once trades store entry regimes.</div>`;
+    return;
+  }
+  const matrix={};
+  closed.forEach(t=>{
+    const reg=t.entryRegime||"Unknown";
+    const typ=t.type||"Other";
+    matrix[reg]=matrix[reg]||{};
+    matrix[reg][typ]=matrix[reg][typ]||{n:0,sumR:0};
+    matrix[reg][typ].n++;
+    if(!isNaN(Number(t.rMultiple))) matrix[reg][typ].sumR+=Number(t.rMultiple);
+  });
+  const regimes=Object.keys(matrix);
+  const types=Array.from(new Set(closed.map(t=>t.type||"Other")));
+  const head=`<tr><th>Regime</th>${types.map(t=>`<th>${t}</th>`).join("")}</tr>`;
+  const rrows=regimes.map(rg=>{
+    const cells=types.map(tp=>{
+      const cell=matrix[rg][tp];
+      if(!cell) return `<td class="td-muted">—</td>`;
+      const avgR=cell.sumR/cell.n || 0;
+      return `<td><b>${cell.n}</b><div class="td-muted" style="font-size:0.75rem;">avg ${avgR.toFixed(2)}R</div></td>`;
+    }).join("");
+    return `<tr><td><b>${rg}</b></td>${cells}</tr>`;
+  }).join("");
+  document.getElementById("regimeMatrixBox").innerHTML=`
+    <div style="max-height:260px;overflow:auto;">
+    <table><thead>${head}</thead><tbody>${rrows}</tbody></table></div>`;
+}
+
+function addDefaultPlaybooks(){
+  if(appData.playbooks.length) return;
+  appData.playbooks=[
+    {name:"Shield (Wheel Income)",maxRiskR:1,dte:"30-45",notes:"Tier 1, defensives, income focus."},
+    {name:"Spear (Swing Momentum)",maxRiskR:1,dte:"N/A",notes:"High-conviction swing plays only."},
+    {name:"Scout (Speculative)",maxRiskR:0.5,dte:"14-30",notes:"Small size, clear catalysts."}
+  ];
+  saveToLocalStorage();
+  renderPlaybooks();
+}
+function renderPlaybooks(){
+  const box=document.getElementById("playbooksBox");
+  if(!appData.playbooks.length){
+    box.innerHTML=`<div class="empty">No playbooks yet. Click “Add Defaults”.</div>`;
+    return;
+  }
+  box.innerHTML=appData.playbooks.map((p,i)=>`
+    <div class="op-card">
+      <div class="op-head">
+        <div class="op-ticker">${p.name}</div>
+        <div class="op-actions">
+          <button class="btn btn-sm btn-danger" onclick="deletePlaybook(${i})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="op-meta">Max Risk: ${p.maxRiskR}R • DTE: ${p.dte}</div>
+      <div style="font-size:0.8rem;">${p.notes||""}</div>
+    </div>`).join("");
+}
+function deletePlaybook(i){
+  if(!confirm("Delete playbook?")) return;
+  appData.playbooks.splice(i,1);
+  saveToLocalStorage();
+  renderPlaybooks();
+}
+
+document.getElementById("backupBtn").addEventListener("click",exportData);
+function exportData(){
+  const blob=new Blob([JSON.stringify(appData,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=`janus_backup_${fmtYMD(new Date())}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+}
+document.getElementById("importFile").addEventListener("change",e=>{
+  const f=e.target.files?.[0];if(!f) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(reader.result);
+      if(parsed && typeof parsed==="object"){
+        appData=parsed;window.appData=appData;
+        saveToLocalStorage();renderAll();showToast("Import complete!", "success");
+      }
+    }catch(err){showToast("Import failed. Check file format.", "error");}
+  };
+  reader.readAsText(f);
+});
+function resetData(){
+  if(!confirm("This clears local data only. Continue?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+
+function buildOpportunityFromWatch(kind,item){
+  if(!item) return null;
+  const base = {
+    id: Date.now(),
+    ticker: item.ticker,
+    tier: item.tier || "T1",
+    strategies: [],
+    stage: "backlog",
+    setup: "",
+    trigger: "",
+    invalidation: "",
+    regimeCompat: "any",
+    earningsDate: "",
+    tags: [],
+    notes: item.notes || ""
+  };
+  if(kind==="wheel"){
+    base.strategies = ["Wheel"];
+    base.setup = `${item.name||""} • ${item.sector||""}`.trim();
+    base.trigger = item.cspStrike ? `CSP @ ${item.cspStrike} • Prem ${item.premium||""}` : "";
+    base.invalidation = item.support1 ? `Support ~ ${item.support1}${item.support2?"/"+item.support2:""}` : "";
+  }else{
+    base.strategies = ["Swing"];
+    base.setup = item.entrySignal || "";
+    base.trigger = item.targetPct ? `Target ${item.targetPct}` : "";
+    base.invalidation = item.stopPct ? `Stop ${item.stopPct}` : "";
+  }
+  base.tags = [];
+  if(item.regimes) base.tags.push(item.regimes);
+  if(item.sector) base.tags.push(item.sector);
+  return base;
+}
+
+function addOpportunityFromWatch(kind, index){
+  const src = (kind==="wheel") ? (appData.wheelWatchlist || []) : (appData.swingWatchlist || []);
+  const item = src[index];
+  if(!item) return;
+  const op = buildOpportunityFromWatch(kind, item);
+  if(!op) return;
+  appData.opportunities.push(op);
+  saveToLocalStorage();
+  renderPipeline();
+}
+
+function editOpportunityFromWatch(kind, index){
+  const src = (kind==="wheel") ? (appData.wheelWatchlist || []) : (appData.swingWatchlist || []);
+  const item = src[index];
+  if(!item) return;
+  const op = buildOpportunityFromWatch(kind, item);
+  if(!op) return;
+  openOpportunityModal(op);
+}
+
+
+function editWatchlistField(kind, index, field, label){
+  const list = (kind==="wheel") ? (appData.wheelWatchlist || []) : (appData.swingWatchlist || []);
+  const item = list[index];
+  if(!item) return;
+  const current = (item[field] !== undefined && item[field] !== null) ? item[field] : "";
+  const next = window.prompt(`Edit ${label} for ${item.ticker}:`, current);
+  if(next === null) return;
+  item[field] = next;
+  saveToLocalStorage();
+  if(kind === "wheel"){
+    renderWheelWatchlist();
+  }else{
+    renderSwingWatchlist();
+  }
+}
+
+
+let wheelSortState = { column: null, direction: 'asc' };
+let swingSortState = { column: null, direction: 'asc' };
+
+function sortWatchlist(kind, column) {
+  const state = kind === 'wheel' ? wheelSortState : swingSortState;
+  if (state.column === column) {
+    state.direction = state.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.column = column;
+    state.direction = 'asc';
+  }
+  if (kind === 'wheel') {
+    renderWheelWatchlist();
+  } else {
+    renderSwingWatchlist();
+  }
+}
+
+function getSortedWatchlist(kind) {
+  const state = kind === 'wheel' ? wheelSortState : swingSortState;
+  const list = kind === 'wheel' 
+    ? (Array.isArray(appData.wheelWatchlist) ? [...appData.wheelWatchlist] : [])
+    : (Array.isArray(appData.swingWatchlist) ? [...appData.swingWatchlist] : []);
+  
+  if (!state.column) return list.map((item, origIndex) => ({ ...item, _origIndex: origIndex }));
+  
+  const indexed = list.map((item, origIndex) => ({ ...item, _origIndex: origIndex }));
+  
+  indexed.sort((a, b) => {
+    let aVal = a[state.column];
+    let bVal = b[state.column];
+    
+    // Handle numeric fields
+    if (['price', 'support1', 'support2'].includes(state.column)) {
+      aVal = parseFloat(aVal) || 0;
+      bVal = parseFloat(bVal) || 0;
+    }
+    // Handle earnings date
+    else if (state.column === 'earnings') {
+      aVal = aVal ? new Date(aVal).getTime() : Infinity;
+      bVal = bVal ? new Date(bVal).getTime() : Infinity;
+    }
+    // Handle tier (T1 < T2 < T3)
+    else if (state.column === 'tier') {
+      const tierOrder = { 'T1': 1, 'T2': 2, 'T3': 3 };
+      aVal = tierOrder[aVal] || 99;
+      bVal = tierOrder[bVal] || 99;
+    }
+    // String fields
+    else {
+      aVal = (aVal || '').toString().toLowerCase();
+      bVal = (bVal || '').toString().toLowerCase();
+    }
+    
+    if (aVal < bVal) return state.direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return state.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+  
+  return indexed;
+}
+
+function getSortClass(kind, column) {
+  const state = kind === 'wheel' ? wheelSortState : swingSortState;
+  if (state.column !== column) return 'sortable';
+  return `sortable ${state.direction}`;
+}
+
+function formatEarningsDate(dateStr) {
+  if (!dateStr) return '';
+  const dt = parseDateAsLocal(dateStr);
+  if (!dt) return '';
+  const now = new Date();
+  const days = daysBetween(now, dt);
+  const formatted = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  if (days < 0) return `<span class="td-muted">${formatted}</span>`;
+  if (days <= 3) return `<span class="earnings-imminent">${formatted} (${days}d)</span>`;
+  if (days <= 14) return `<span class="earnings-soon">${formatted} (${days}d)</span>`;
+  return formatted;
+}
+
+function deleteWatchlistItem(kind, origIndex) {
+  if (!confirm('Delete this watchlist item?')) return;
+  const list = kind === 'wheel' ? appData.wheelWatchlist : appData.swingWatchlist;
+  if (origIndex >= 0 && origIndex < list.length) {
+    const ticker = list[origIndex].ticker || 'Item';
+    list.splice(origIndex, 1);
+    saveToLocalStorage();
+    showToast(`${ticker} removed from watchlist`, 'info');
+    if (kind === 'wheel') {
+      renderWheelWatchlist();
+    } else {
+      renderSwingWatchlist();
+    }
+  }
+}
+
+function renderWheelWatchlist(){
+  const box = document.getElementById("wheelWatchlistBox");
+  if(!box) return;
+  const rawList = Array.isArray(appData.wheelWatchlist) ? appData.wheelWatchlist : [];
+  
+  // Build search box HTML
+  const searchBoxHtml = `
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="wheelSearchInput" placeholder="Search wheel watchlist..." 
+             value="${wheelSearchTerm}" oninput="updateWatchlistSearch('wheel', this.value)">
+      <button class="clear-search ${wheelSearchTerm ? 'visible' : ''}" id="wheelSearchClear" 
+              onclick="clearWatchlistSearch('wheel')"><i class="fa-solid fa-xmark"></i></button>
+    </div>`;
+  
+  if(!rawList.length){
+    box.innerHTML = searchBoxHtml + `<div class="empty">No wheel watchlist loaded. Click "Add Ticker" to get started.</div>`;
+    return;
+  }
+  
+  // Filter then sort
+  const filteredList = filterWatchlist(rawList, wheelSearchTerm);
+  
+  if (!filteredList.length) {
+    box.innerHTML = searchBoxHtml + `<div class="empty">No matches for "${wheelSearchTerm}"</div>`;
+    return;
+  }
+  
+  // Add original indices before sorting
+  const indexedList = filteredList.map(item => {
+    const origIndex = rawList.indexOf(item);
+    return { ...item, _origIndex: origIndex };
+  });
+  
+  // Sort the indexed list
+  const state = wheelSortState;
+  if (state.column) {
+    indexedList.sort((a, b) => {
+      let aVal = a[state.column];
+      let bVal = b[state.column];
+      if (['price', 'support1', 'support2'].includes(state.column)) {
+        aVal = parseFloat(aVal) || 0;
+        bVal = parseFloat(bVal) || 0;
+      } else if (state.column === 'earnings') {
+        aVal = aVal ? new Date(aVal).getTime() : Infinity;
+        bVal = bVal ? new Date(bVal).getTime() : Infinity;
+      } else if (state.column === 'tier') {
+        const tierOrder = { 'T1': 1, 'T2': 2, 'T3': 3 };
+        aVal = tierOrder[aVal] || 99;
+        bVal = tierOrder[bVal] || 99;
+      } else {
+        aVal = (aVal || '').toString().toLowerCase();
+        bVal = (bVal || '').toString().toLowerCase();
+      }
+      if (aVal < bVal) return state.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return state.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+  
+  const rows = indexedList.map((w)=>{
+    const i = w._origIndex;
+    const price = (typeof w.price==="number" && !isNaN(w.price)) ? `$${w.price.toFixed(2)}` : (w.price || "");
+    const premium = (w.premium !== null && w.premium !== undefined && w.premium !== "") ? w.premium : "";
+    const regimes = w.regimes || "";
+    const strike = (w.cspStrike !== null && w.cspStrike !== undefined) ? w.cspStrike : "";
+    const earnings = formatEarningsDate(w.earnings);
+    return `
+      <tr>
+        <td><a href="https://finance.yahoo.com/quote/${w.ticker}" target="_blank" class="ticker-link">${w.ticker}</a></td>
+        <td class="td-muted">${w.name||""}</td>
+        <td>${w.tier||""}</td>
+        <td>${w.sector||""}</td>
+        <td class="editable" onclick="editWatchlistField('wheel',${i},'price','Price')">${price}</td>
+        <td class="editable" onclick="editWatchlistField('wheel',${i},'cspStrike','CSP Strike')">${strike}</td>
+        <td class="editable" onclick="editWatchlistField('wheel',${i},'premium','Premium')">${premium}</td>
+        <td class="editable" onclick="editWatchlistField('wheel',${i},'earnings','Earnings')">${earnings}</td>
+        <td class="td-muted editable" onclick="editWatchlistField('wheel',${i},'regimes','Regimes')">${regimes}</td>
+        <td>
+          <button class="btn btn-sm" onclick="addOpportunityFromWatch('wheel',${i})" title="Add to Pipeline"><i class="fa-solid fa-plus"></i></button>
+          <button class="btn btn-sm" onclick="editOpportunityFromWatch('wheel',${i})" title="Edit as Opportunity"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteWatchlistItem('wheel',${i})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+  }).join("");
+  
+  const countDisplay = wheelSearchTerm ? `<span class="td-muted" style="font-size:0.8rem;margin-left:0.5rem;">(${indexedList.length} of ${rawList.length})</span>` : '';
+  
+  box.innerHTML = searchBoxHtml + `
+    <div style="max-height:720px;overflow:auto;">
+      <table class="trades-table trades-table-lg">
+        <thead>
+          <tr>
+            <th class="${getSortClass('wheel','ticker')}" onclick="sortWatchlist('wheel','ticker')">Ticker</th>
+            <th class="${getSortClass('wheel','name')}" onclick="sortWatchlist('wheel','name')">Name</th>
+            <th class="${getSortClass('wheel','tier')}" onclick="sortWatchlist('wheel','tier')">Tier</th>
+            <th class="${getSortClass('wheel','sector')}" onclick="sortWatchlist('wheel','sector')">Sector</th>
+            <th class="${getSortClass('wheel','price')}" onclick="sortWatchlist('wheel','price')">Price</th>
+            <th>CSP Strike</th>
+            <th>Premium</th>
+            <th class="${getSortClass('wheel','earnings')}" onclick="sortWatchlist('wheel','earnings')">Earnings</th>
+            <th>Regimes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderSwingWatchlist(){
+  const box = document.getElementById("swingWatchlistBox");
+  if(!box) return;
+  const rawList = Array.isArray(appData.swingWatchlist) ? appData.swingWatchlist : [];
+  
+  // Build search box HTML
+  const searchBoxHtml = `
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="swingSearchInput" placeholder="Search swing watchlist..." 
+             value="${swingSearchTerm}" oninput="updateWatchlistSearch('swing', this.value)">
+      <button class="clear-search ${swingSearchTerm ? 'visible' : ''}" id="swingSearchClear" 
+              onclick="clearWatchlistSearch('swing')"><i class="fa-solid fa-xmark"></i></button>
+    </div>`;
+  
+  if(!rawList.length){
+    box.innerHTML = searchBoxHtml + `<div class="empty">No swing watchlist loaded. Click "Add Ticker" to get started.</div>`;
+    return;
+  }
+  
+  // Filter then sort
+  const filteredList = filterWatchlist(rawList, swingSearchTerm);
+  
+  if (!filteredList.length) {
+    box.innerHTML = searchBoxHtml + `<div class="empty">No matches for "${swingSearchTerm}"</div>`;
+    return;
+  }
+  
+  // Add original indices before sorting
+  const indexedList = filteredList.map(item => {
+    const origIndex = rawList.indexOf(item);
+    return { ...item, _origIndex: origIndex };
+  });
+  
+  // Sort the indexed list
+  const state = swingSortState;
+  if (state.column) {
+    indexedList.sort((a, b) => {
+      let aVal = a[state.column];
+      let bVal = b[state.column];
+      if (['price', 'support1', 'support2'].includes(state.column)) {
+        aVal = parseFloat(aVal) || 0;
+        bVal = parseFloat(bVal) || 0;
+      } else if (state.column === 'earnings') {
+        aVal = aVal ? new Date(aVal).getTime() : Infinity;
+        bVal = bVal ? new Date(bVal).getTime() : Infinity;
+      } else if (state.column === 'tier') {
+        const tierOrder = { 'T1': 1, 'T2': 2, 'T3': 3 };
+        aVal = tierOrder[aVal] || 99;
+        bVal = tierOrder[bVal] || 99;
+      } else {
+        aVal = (aVal || '').toString().toLowerCase();
+        bVal = (bVal || '').toString().toLowerCase();
+      }
+      if (aVal < bVal) return state.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return state.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+  
+  const rows = indexedList.map((w)=>{
+    const i = w._origIndex;
+    const price = (typeof w.price==="number" && !isNaN(w.price)) ? `$${w.price.toFixed(2)}` : (w.price || "");
+    const regimes = w.regimes || "";
+    const earnings = formatEarningsDate(w.earnings);
+    return `
+      <tr>
+        <td><a href="https://finance.yahoo.com/quote/${w.ticker}" target="_blank" class="ticker-link">${w.ticker}</a></td>
+        <td class="td-muted">${w.name||""}</td>
+        <td>${w.tier||""}</td>
+        <td>${w.sector||""}</td>
+        <td class="editable" onclick="editWatchlistField('swing',${i},'price','Price')">${price}</td>
+        <td class="editable" onclick="editWatchlistField('swing',${i},'entrySignal','Entry Signal')">${w.entrySignal||""}</td>
+        <td class="editable" onclick="editWatchlistField('swing',${i},'targetPct','Target %')">${w.targetPct||""}</td>
+        <td class="editable" onclick="editWatchlistField('swing',${i},'stopPct','Stop %')">${w.stopPct||""}</td>
+        <td class="editable" onclick="editWatchlistField('swing',${i},'earnings','Earnings')">${earnings}</td>
+        <td class="td-muted editable" onclick="editWatchlistField('swing',${i},'regimes','Regimes')">${regimes}</td>
+        <td>
+          <button class="btn btn-sm" onclick="addOpportunityFromWatch('swing',${i})" title="Add to Pipeline"><i class="fa-solid fa-plus"></i></button>
+          <button class="btn btn-sm" onclick="editOpportunityFromWatch('swing',${i})" title="Edit as Opportunity"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteWatchlistItem('swing',${i})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+  }).join("");
+  
+  box.innerHTML = searchBoxHtml + `
+    <div style="max-height:720px;overflow:auto;">
+      <table class="trades-table trades-table-lg">
+        <thead>
+          <tr>
+            <th class="${getSortClass('swing','ticker')}" onclick="sortWatchlist('swing','ticker')">Ticker</th>
+            <th class="${getSortClass('swing','name')}" onclick="sortWatchlist('swing','name')">Name</th>
+            <th class="${getSortClass('swing','tier')}" onclick="sortWatchlist('swing','tier')">Tier</th>
+            <th class="${getSortClass('swing','sector')}" onclick="sortWatchlist('swing','sector')">Sector</th>
+            <th class="${getSortClass('swing','price')}" onclick="sortWatchlist('swing','price')">Price</th>
+            <th>Entry Signal</th>
+            <th>Target %</th>
+            <th>Stop %</th>
+            <th class="${getSortClass('swing','earnings')}" onclick="sortWatchlist('swing','earnings')">Earnings</th>
+            <th>Regimes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+let currentWatchlistKind = 'wheel';
+
+function openAddWatchlistModal(kind) {
+  currentWatchlistKind = kind;
+  document.getElementById('watchlistModalTitle').textContent = kind === 'wheel' ? 'Add to Wheel Watchlist' : 'Add to Swing Watchlist';
+  
+  // Clear all fields
+  document.getElementById('wlTicker').value = '';
+  document.getElementById('wlName').value = '';
+  document.getElementById('wlTier').value = 'T1';
+  document.getElementById('wlSector').value = '';
+  document.getElementById('wlPrice').value = '';
+  document.getElementById('wlEarnings').value = '';
+  document.getElementById('wlRegimes').value = '';
+  document.getElementById('wlNotes').value = '';
+  document.getElementById('wlCspStrike').value = '';
+  document.getElementById('wlPremium').value = '';
+  document.getElementById('wlEntrySignal').value = '';
+  document.getElementById('wlTargetPct').value = '';
+  document.getElementById('wlStopPct').value = '';
+  
+  // Show/hide appropriate fields
+  document.getElementById('wlWheelFields').style.display = kind === 'wheel' ? 'block' : 'none';
+  document.getElementById('wlSwingFields').style.display = kind === 'swing' ? 'block' : 'none';
+  
+  document.getElementById('watchlistModalBackdrop').style.display = 'flex';
+}
+
+function closeWatchlistModal() {
+  document.getElementById('watchlistModalBackdrop').style.display = 'none';
+}
+
+function saveWatchlistItem() {
+  const ticker = (document.getElementById('wlTicker').value || '').trim().toUpperCase();
+  if (!ticker) {
+    showToast('Ticker is required', 'warning');
+    return;
+  }
+  
+  const item = {
+    ticker: ticker,
+    name: document.getElementById('wlName').value.trim(),
+    tier: document.getElementById('wlTier').value,
+    sector: document.getElementById('wlSector').value.trim(),
+    price: parseFloat(document.getElementById('wlPrice').value) || null,
+    earnings: document.getElementById('wlEarnings').value || null,
+    regimes: document.getElementById('wlRegimes').value.trim(),
+    notes: document.getElementById('wlNotes').value.trim()
+  };
+  
+  if (currentWatchlistKind === 'wheel') {
+    item.cspStrike = document.getElementById('wlCspStrike').value.trim();
+    item.premium = document.getElementById('wlPremium').value.trim();
+    appData.wheelWatchlist.push(item);
+  } else {
+    item.entrySignal = document.getElementById('wlEntrySignal').value.trim();
+    item.targetPct = document.getElementById('wlTargetPct').value.trim();
+    item.stopPct = document.getElementById('wlStopPct').value.trim();
+    appData.swingWatchlist.push(item);
+  }
+  
+  saveToLocalStorage();
+  closeWatchlistModal();
+  renderWatchlists();
+  showToast(`${ticker} added to ${currentWatchlistKind} watchlist`, 'success');
+}
+
+function renderWatchlists(){
+  renderWheelWatchlist();
+  renderSwingWatchlist();
+}
+function renderAll(){
+  renderRegime();
+  renderCashBox();
+  renderOpenTradesTable();
+  renderActiveTradesTable();
+  renderClosedTradesArchive();
+  renderPriorityQueue();
+  renderCalendarHeatmap();
+  renderRCurve();
+  renderAnalytics();
+  renderPlaybooks();
+  renderWatchlists();
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  loadFromLocalStorage();
+  ensureWatchlistsSeeded();
+  setTheme(appData.settings.theme||"light");
+  document.getElementById("systemDate").textContent=new Date().toLocaleString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  const tradeTypeEl=document.getElementById("tradeType");
+  if(tradeTypeEl){tradeTypeEl.addEventListener("change",updateTradeTypeFields);updateTradeTypeFields();}
+  renderAll();
+  
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('Service Worker registered:', reg.scope))
+      .catch(err => console.log('Service Worker registration failed:', err));
+  }
+});
+</script>
+</body>
+</html>
